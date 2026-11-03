@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0a0b0e">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
-<title>SEN Sandbox V2.10.0</title>
+<title>SEN Sandbox V2.10.0-r1</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Archivo:wght@500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
@@ -46,6 +46,10 @@ input.man{border-color:var(--gold);border-style:dashed;background:var(--src-man)
 .apphdr .brand{font-family:var(--disp);font-weight:800;font-size:21px;letter-spacing:.01em}
 .apphdr .brand span{color:var(--accent)}
 .apphdr .ver{font-family:var(--mono);font-size:10px;color:var(--text3);text-align:right;line-height:1.6}
+/* SANDBOX r1 — slim header: brand + page name; version lives in Settings */
+.apphdr{padding:8px 0 7px}
+.apphdr .brand{font-size:18px}
+.apphdr .hpage{font-family:var(--disp);font-weight:600;font-size:15px;color:var(--text2)}
 
 /* ── active selections bar (face of Session State) ── */
 .actbar{display:flex;gap:6px;overflow-x:auto;padding:10px 0;border-bottom:1px solid var(--border);scrollbar-width:none;-webkit-overflow-scrolling:touch}
@@ -168,6 +172,39 @@ tr.zr td{color:var(--gold)}
 .dsol-v{font-family:var(--disp);font-size:35px;font-weight:800;line-height:1.05;color:var(--text);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
 .dsol-cell.accent .dsol-v{color:var(--accent)}.dsol-cell.gold .dsol-v{color:var(--gold)}
 .dsol-u{font-family:var(--mono);font-size:10px;color:var(--text2)}
+/* SANDBOX r1 — Field modules */
+.dash.ans-on .dash-sol{display:none}
+body:has(#page-home.active):has(#home-summary:not(.mod-off)) #actbar{display:none}
+.fsum{margin:10px 0}
+.fsum-btn{width:100%;display:flex;align-items:center;gap:8px;min-height:48px;padding:10px 14px;background:var(--bg2);border:1px solid var(--border2);border-radius:10px;color:var(--text2);font-family:var(--sans);font-size:14px;text-align:left}
+.fsum-txt{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fsum-chev{color:var(--text3)}
+.fans{display:grid;grid-template-columns:1fr 1fr;gap:10px;background:linear-gradient(160deg,var(--bg2),var(--bg3));border:1px solid var(--border2);border-radius:12px;padding:14px;margin-bottom:10px}
+.fans-cell{background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:12px 14px}
+.fans-l{font-family:var(--sans);font-size:13px;color:var(--text3)}
+.fans-v{font-family:var(--disp);font-size:46px;font-weight:800;line-height:1.05;color:var(--text);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.fans-cell.accent .fans-v{color:var(--accent)}.fans-cell.gold .fans-v{color:var(--gold)}
+.fans-u{font-family:var(--mono);font-size:13px;color:var(--text2)}
+.fans-status{grid-column:1/-1;font-size:12px;color:var(--text3);line-height:1.5}
+.fans-status:empty{display:none}
+.fdist{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+.fdist-l{font-family:var(--sans);font-size:13px;color:var(--text3);display:flex;justify-content:space-between}
+.fdist-src{font-size:12px;color:var(--accent)}.fdist-src.man{color:var(--gold)}
+.fdist-v{width:100%;display:flex;align-items:baseline;justify-content:center;gap:6px;min-height:72px;margin:4px 0;background:var(--bg);border:1px solid var(--border);border-radius:10px;color:var(--text);
+  touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent;transition:border-color .12s,background .12s}
+.fdist-v #fd-val{font-family:var(--disp);font-size:44px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1}
+.fdist-u{font-family:var(--sans);font-size:18px;color:var(--text2)}
+.fdist-hint{font-size:16px;color:var(--text3);margin-left:6px}
+.fdist.grab .fdist-v{border-color:var(--accent);background:rgba(114,180,194,.10)}
+.fdist-tip{font-size:12px;color:var(--text3);text-align:center;margin-bottom:6px}
+.fdist-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.fdist-sub{min-height:48px;padding:8px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--sans);font-size:14px}
+.fseg{display:flex;gap:6px;margin:12px 0}
+.fseg button{flex:1;min-height:48px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text2);font-size:14px}
+.fseg button.on{border-color:var(--accent);color:var(--accent)}
+.flist{display:flex;flex-direction:column;gap:6px}
+.flist button{display:flex;justify-content:space-between;gap:10px;min-height:52px;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;text-align:left}
+.flist .fk{color:var(--text3);flex-shrink:0}.flist .fv{color:var(--accent);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cond{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px}
 @media(max-width:520px){.cond{grid-template-columns:repeat(2,1fr)}}
 .cond-cell{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:9px 10px}
@@ -210,7 +247,7 @@ tr.zr td{color:var(--gold)}
 .navsheet{display:grid;grid-template-columns:1fr 1fr;gap:7px;overflow:visible;padding:0}
 .navsheet button{min-height:52px;border-radius:8px;font-size:12px;background:var(--bg3);
   border:1px solid var(--border);color:var(--text);text-align:left;padding:10px 12px}
-.navsheet button.on{border-color:var(--accent);color:var(--accent)}
+.navsheet button.on{border-color:var(--accent);color:var(--accent);background:var(--bg3)}  /* SANDBOX r1: .nav button.on painted the background accent too — text was invisible */
 .navsheet button .nsub{display:block;font-size:9px;color:var(--text3);margin-top:2px}
 @media(min-width:760px){
   body{padding-bottom:calc(28px + env(safe-area-inset-bottom))}
@@ -314,7 +351,7 @@ details.disc .dbody{padding:0 14px 14px}
 
 <div class="apphdr">
   <div class="brand">SEN<span>·</span>Sandbox</div>
-  <div class="ver">V2.10.0 · minor<br>RTI Mora Sniper · RK4 G7/G1</div>
+  <div class="hpage" id="hdr-page">Home</div>
 </div>
 
 <aside id="sol-rail" aria-label="Second pane"><div class="pane-sw" id="pane-sw"></div><div class="rail-head" id="rail-head">—</div></aside><button class="btn-xs" id="pane-show" style="display:none" onclick="setPaneMode(curPage(),'rail')">◧ Solution</button>
@@ -345,6 +382,19 @@ details.disc .dbody{padding:0 14px 14px}
       <button class="btn" id="su-proj" onclick="pickSheet('proj')">2 · Projectile</button>
       <button class="btn" id="su-wx" onclick="pickSheet('wx')">3 · Weather</button>
     </div>
+  </div>
+  <!-- SANDBOX r1 — Field modules: session summary, answer, distance (UI only; values come from renderQuick) -->
+  <div class="fsum mod-off" id="home-summary"><button type="button" class="fsum-btn" id="fsum-btn" onclick="openSummarySheet()"><span class="fsum-txt" id="fsum-txt">—</span><span class="fsum-chev">▾</span></button></div>
+  <div class="fans mod-off" id="home-answer">
+    <div class="fans-cell accent"><div class="fans-l">Elevation</div><div class="fans-v" id="fa-elev">—</div><div class="fans-u" id="fa-elev-u">clicks</div></div>
+    <div class="fans-cell gold"><div class="fans-l">Windage</div><div class="fans-v" id="fa-wind">—</div><div class="fans-u" id="fa-wind-u">clicks</div></div>
+    <div class="fans-status" id="fa-status"></div>
+  </div>
+  <div class="fdist mod-off" id="home-distance">
+    <div class="fdist-l">Distance <span class="fdist-src" id="fd-src"></span></div>
+    <button type="button" class="fdist-v" id="fd-btn" aria-label="Distance — tap to type, hold and drag to adjust"><span id="fd-val">—</span><span class="fdist-u" id="fd-unit"></span><span class="fdist-hint" aria-hidden="true">⇕</span></button>
+    <div class="fdist-tip" id="fd-tip">Hold and drag: ← → ±1 · ↑ ↓ ±10</div>
+    <div class="fdist-row"><button type="button" class="fdist-sub" id="fd-angle" onclick="openAngleSheet()">Angle 0°</button><button type="button" class="fdist-sub" id="fd-wind" onclick="pickSheet('wind')">Wind —</button></div>
   </div>
   <div class="dash" id="home-dash">
     <div class="dash-reticle">
@@ -962,7 +1012,7 @@ details.disc .dbody{padding:0 14px 14px}
 <!-- ═══════════ SETTINGS (D3) ═══════════ -->
 <div class="page" id="page-settings">
   <div id="settings-body"></div>
-  <div class="note">SEN Ballistics Platform V2.10.0 · re-architecture of V3.2.2 · physics core ported verbatim &amp; verified · Reticle→Scope→Rifle model · single-file PWA · github.com/SprukK/SEN-Balistic-Calculator</div>
+  <div class="note">SEN Sandbox V2.10.0-r1 · UI fork of SEN Ballistics V2.10.0 (physics unchanged) · RTI Mora Sniper · RK4 G7/G1 · single-file PWA · github.com/SprukK/SEN-sandbox</div>
 </div>
 
 <!-- profile modals -->
@@ -2332,18 +2382,20 @@ function markSrc(f){
 }
 
 /* ═════════ shell render ═════════ */
-function renderActBar(){
+// SANDBOX r1: the chip values as data, shared by the chip bar and the Field summary sheet (raw text, never HTML)
+function actItems(){
   const r=getRifle(),p=getProj(),cw=getWx(S.curWxId);
+  return[['Rifle',r?r.name:'— select —','rifle'],['Projectile',p?p.name:'— select —','proj'],
+    ['MV',S.mv?ut('vel',S.mv)+(S.src.mv==='manual'?' ✎':S.src.mv==='chrono'?' ⊙':S.src.mv==='mvtemp'?' ƒT':''):'—','mv'],
+    ['Weather',cw?cw.name.replace('Ljubljana ','LJ '):'— select —','wx'],
+    ['Wind',ut('wind',S.wind.speed)+' @ '+Math.round(S.wind.dir)+'°'+(S.wind.source==='calypso'?' ⊙':''),'wind'],
+    ['Distance',ut('range',S.dist_m),'dist']];
+}
+function renderActBar(){
   // V1.17.0: a chip now opens its own picker sheet instead of navigating to the Trajectory tab.
   // Changing the session no longer costs you the tab you were working on.
-  const chip=(k,v,kind)=>`<button class="actchip" onclick="pickSheet('${kind}')"><span class="k">${k}</span><span class="v">${v}</span></button>`;
-  document.getElementById('actbar').innerHTML=
-    chip('Rifle',r?esc(r.name):'— select —','rifle')+
-    chip('Projectile',p?esc(p.name):'— select —','proj')+
-    chip('MV',S.mv?ut('vel',S.mv)+(S.src.mv==='manual'?' ✎':S.src.mv==='chrono'?' ⊙':S.src.mv==='mvtemp'?' ƒT':''):'—','mv')+
-    chip('Weather',cw?esc(cw.name.replace('Ljubljana ','LJ ')):'— select —','wx')+
-    chip('Wind',ut('wind',S.wind.speed)+' @ '+Math.round(S.wind.dir)+'°'+(S.wind.source==='calypso'?' ⊙':''),'wind')+
-    chip('Distance',ut('range',S.dist_m),'dist');
+  const chip=(k,v,kind)=>`<button class="actchip" onclick="pickSheet('${kind}')"><span class="k">${k}</span><span class="v">${esc(v)}</span></button>`;
+  document.getElementById('actbar').innerHTML=actItems().map(([k,v,kind])=>chip(k,v,kind)).join('');
 }
 /* ═════ V1.17.0 — bottom sheets: More menu + inline session pickers ═════
    Every picker writes through the SAME Bus calls the Trajectory selects use, so there is exactly
@@ -2404,6 +2456,7 @@ function pickSheet(kind){
   }else if(kind==='dist'){
     openSheet('<h3>Target distance</h3><div class="fld"><label>Distance</label><input type="number" id="sh-num" data-q="range" step="5" value="'+S.dist_m+'"></div>'+
       '<div class="btnrow"><button class="btn primary" onclick="sheetSetNum(\'dist\')">Set</button><button class="btn" onclick="closeSheet()">Cancel</button></div>');
+    distSheetExtras();   // SANDBOX r1
   }else if(kind==='mv'){
     openSheet('<h3>Muzzle velocity</h3><div class="fld"><label>m/s · overrides the rifle profile</label><input type="number" id="sh-num" data-q="vel" step="0.1" value="'+(S.mv??'')+'"></div>'+
       '<div class="btnrow"><button class="btn primary" onclick="sheetSetNum(\'mv\')">Set</button><button class="btn" onclick="Bus.repull(\'mv\');closeSheet()">Back to profile</button></div>');
@@ -2568,6 +2621,7 @@ function renderQuick(){
     }
   }
   document.getElementById('home-status').textContent=statusMsg;
+  fieldSync(statusMsg);  // SANDBOX r1
   renderHomeMods(tr);
   homeShellSync();
   document.getElementById('home-reticle').innerHTML=drawReticle(reticle,elev,wind,scope);
@@ -2836,6 +2890,7 @@ function gotoPage(p){
   // V1.17.0: pages that live behind More keep the More tab lit, so the bar never looks unselected
   const more=document.getElementById('nav-more');
   if(more)more.classList.toggle('on',MORE_PAGES.some(m=>m[0]===p));
+  hdrPage(p);  // SANDBOX r1
   window.scrollTo(0,0);
   pg.classList.add('active');
   if(twoPane)applyPane(p);   // V2.7.0 CORE-18
@@ -4783,7 +4838,10 @@ Bus.on(()=>{if(document.getElementById('page-sensors')?.classList.contains('acti
    moves dash/turret/conditions into the rail; ordering then uses its placeholders. All layout UI
    is built with createElement/textContent — no HTML from user text. */
 const HOME_MODS={
-  solution:{el:'home-dash',name:'Reticle + elevation / windage'},
+  solution:{el:'home-dash',name:'Reticle + elevation / windage (reticle only when Answer is on)'},
+  summary:{el:'home-summary',name:'Session summary (one line)'},     // SANDBOX r1
+  answer:{el:'home-answer',name:'Answer — elevation / windage clicks'}, // SANDBOX r1
+  distance:{el:'home-distance',name:'Distance — tap to type, hold and drag'}, // SANDBOX r1
   rail:{el:'home-rail-panel',name:'Adjustable rail budget'},
   turret:{el:'home-turret-panel',name:'Turret dialled'},
   live:{el:'home-livebar',name:'Calypso live wind'},
@@ -4804,7 +4862,8 @@ const LAYOUT_TPL={
   br100:{name:'Benchrest 100 m',on:['solution','windoff','windtable','chrono','timer','live','manwind','cond','inputs'],set:{dist:100,timerMin:20,shots:25}},
   prs:{name:'PRS',on:['course','solution','turret','live','bearing','cond','inputs'],set:{dist:null,timerMin:20,shots:25}},
   bigbore:{name:'Big bore',on:['course','solution','turret','live','cond','inputs'],set:{dist:null,timerMin:20,shots:25}},
-  blank:{name:'New layout',on:['solution','inputs'],set:{dist:null,timerMin:20,shots:25}}
+  blank:{name:'New layout',on:['solution','inputs'],set:{dist:null,timerMin:20,shots:25}},
+  field:{name:'Field',on:['summary','answer','distance','solution','turret'],set:{dist:null,timerMin:20,shots:25}}  // SANDBOX r1
 };
 function layoutFromTpl(t,name){
   const T=LAYOUT_TPL[t]||LAYOUT_TPL.default;
@@ -4822,6 +4881,8 @@ function normLayout(L){
 function initLayouts(){
   if(!Array.isArray(APP.layouts)||!APP.layouts.length)APP.layouts=['default','br50','br100','prs','bigbore'].map(t=>layoutFromTpl(t));
   APP.layouts=APP.layouts.map(normLayout);
+  // SANDBOX r1: offer the Field layout once (fresh installs and data imported from Main), at the end of the list
+  if(!APP.fieldSeeded){if(!APP.layouts.some(l=>l.tpl==='field'))APP.layouts.push(layoutFromTpl('field'));APP.fieldSeeded=true;}
   if(!APP.layouts.some(l=>l.id===APP.layoutId))APP.layoutId=APP.layouts[0].id;
 }
 const activeLayout=()=>Array.isArray(APP.layouts)?(APP.layouts.find(l=>l.id===APP.layoutId)||APP.layouts[0]||null):null;
@@ -4834,6 +4895,7 @@ function applyHomeLayout(){
     home.appendChild(mark||el);
   });
   const b=document.getElementById('home-layout-name');if(b)b.textContent=L.name+' ▾';
+  const dash=document.getElementById('home-dash');if(dash)dash.classList.toggle('ans-on',L.mods.some(m=>m.id==='answer'&&m.on));  // SANDBOX r1
   renderQuick();
 }
 function useLayout(id){
@@ -4849,6 +4911,143 @@ function openLayoutSheet(){
     b.onclick=()=>{closeSheet();useLayout(l.id);};list.appendChild(b);});
   const m=document.createElement('button');m.textContent='Manage layouts ›';m.onclick=()=>{closeSheet();gotoPage('layouts');};list.appendChild(m);
   box.appendChild(list);
+}
+
+/* ═════════ SANDBOX r1 — Field screen: summary · answer · distance ═════════
+   UI only. Every value shown here is copied from what renderQuick already computed, and every
+   change goes through the same paths as the rest of Home (homeInput, pickSheet, setUnit), so
+   the solver sees nothing new. Gestures use Pointer Events, so Android touch, mouse and the
+   tests all drive one code path. Built with createElement/textContent — no HTML sinks. */
+const HOLD_MS=350,TAP_SLOP=8;
+const buzz=ms=>{try{if(navigator.vibrate)navigator.vibrate(ms);}catch(e){}};
+// tap / long press / drag after the press on one element
+function senGesture(el,{tap,hold,drag,end}){
+  let st=null;
+  el.addEventListener('contextmenu',e=>e.preventDefault());           // no Android long-press menu
+  el.addEventListener('pointerdown',e=>{
+    if(e.button>0)return;
+    st={id:e.pointerId,x:e.clientX,y:e.clientY,held:false,moved:false};
+    try{el.setPointerCapture(e.pointerId);}catch(err){}
+    st.timer=setTimeout(()=>{if(!st||st.moved)return;st.held=true;buzz(15);if(hold)hold(st);},HOLD_MS);
+  });
+  el.addEventListener('pointermove',e=>{
+    if(!st||e.pointerId!==st.id)return;
+    if(!st.held){if(Math.hypot(e.clientX-st.x,e.clientY-st.y)>TAP_SLOP){st.moved=true;clearTimeout(st.timer);}return;}
+    e.preventDefault();if(drag)drag(e,st);
+  });
+  const finish=(e,cancel)=>{
+    if(!st||e.pointerId!==st.id)return;
+    clearTimeout(st.timer);const s0=st;st=null;
+    if(s0.held){if(end)end(s0,cancel);}
+    el._tapArmed=!s0.held&&!s0.moved&&!cancel;
+  };
+  el.addEventListener('pointerup',e=>finish(e,false));
+  el.addEventListener('pointercancel',e=>finish(e,true));
+  // the tap acts on the click that follows pointerup: opening a sheet on pointerup would let that
+  // click land on the sheet's backdrop and close it again. Keyboard clicks (detail 0) act directly.
+  el.addEventListener('click',e=>{const ok=e.detail===0||el._tapArmed;el._tapArmed=false;if(ok&&tap)tap(e);});
+}
+
+// distance in the display unit (Settings → Range); storage stays metres (CORE-15)
+const FD_MAX_M=1500;
+const fdUnit=()=>UNITS.range;
+const fdToDisp=m=>QDEF.range.to[fdUnit()](m);
+const fdToM=d=>QDEF.range.from[fdUnit()](d);
+const fdShow=d=>{const v=document.getElementById('fd-val');if(v)v.textContent=String(d);};
+let fdPending=null,fdTimer=0;
+function fdApply(){fdTimer=0;if(fdPending==null)return;const m=fdPending;fdPending=null;homeInput('dist',m);rfSrcRender();}
+function fdQueue(m){fdPending=m;if(!fdTimer)fdTimer=(typeof requestAnimationFrame==='function'?requestAnimationFrame:f=>setTimeout(f,16))(fdApply);}
+function fdHold(st){
+  st.val=Math.round(fdToDisp(S.dist_m));st.ax=0;st.ay=0;st.lx=st.x;st.ly=st.y;st.lt=performance.now();st.v=0;
+  document.getElementById('home-distance').classList.add('grab');
+}
+// left/right = ±1 per 12 px, up/down = ±10 per 16 px; the axis that moved most since the last
+// step wins (a slightly diagonal drag never jumps by 10); quick drags step ×2 / ×5.
+function fdDrag(e,st){
+  const now=performance.now(),dx=e.clientX-st.lx,dy=st.ly-e.clientY,dt=Math.max(1,now-st.lt);
+  st.lx=e.clientX;st.ly=e.clientY;st.lt=now;st.ax+=dx;st.ay+=dy;
+  st.v=0.7*st.v+0.3*Math.hypot(dx,dy)/dt;
+  const mul=st.v>2.5?5:st.v>1.2?2:1;   // a little acceleration: only quick drags step ×2 / ×5
+  let step=0;
+  if(Math.abs(st.ax)>=Math.abs(st.ay)){const n=Math.trunc(st.ax/12);if(n){step=n*mul;st.ax-=n*12;st.ay=0;}}
+  else{const n=Math.trunc(st.ay/16);if(n){step=n*10*mul;st.ay-=n*16;st.ax=0;}}
+  if(!step)return;
+  const max=Math.floor(fdToDisp(FD_MAX_M)),nv=Math.min(max,Math.max(1,st.val+step));
+  if(nv===st.val)return;
+  st.val=nv;buzz(5);fdShow(nv);fdQueue(fdToM(nv));
+}
+function fdEnd(st){
+  document.getElementById('home-distance').classList.remove('grab');
+  if(fdTimer&&typeof cancelAnimationFrame==='function')cancelAnimationFrame(fdTimer);
+  fdApply();
+  if(!APP.fdTipSeen){APP.fdTipSeen=true;saveDBSoon();fieldSync();}
+}
+// number sheet extras: the unit switch IS Settings → Range (never a second copy); Enter sets
+function distSheetExtras(){
+  const inp=document.getElementById('sh-num');if(!inp)return;
+  const seg=document.createElement('div');seg.className='fseg';seg.id='sh-dist-units';
+  Object.keys(QDEF.range.opts).forEach(u=>{
+    const b=document.createElement('button');b.type='button';b.textContent=QDEF.range.lab[u];
+    if(UNITS.range===u)b.className='on';
+    b.onclick=()=>{const keep=inp.value;setUnit('range',u);pickSheet('dist');const n=document.getElementById('sh-num');if(n&&keep!=='')n.value=keep;};
+    seg.appendChild(b);
+  });
+  inp.closest('.fld').after(seg);
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter')sheetSetNum('dist');});
+  setTimeout(()=>{try{inp.focus();inp.select();}catch(e){}},50);
+}
+// shot angle (Home's own angle field, as in the Shot inputs module)
+function openAngleSheet(){
+  const cur=document.getElementById('home-angle');
+  openSheet('<h3>Shot angle</h3>');
+  const box=document.getElementById('sbox'),f=document.createElement('div');f.className='fld';
+  const l=document.createElement('label');l.textContent='Angle ° (+ uphill, − downhill)';
+  const i=document.createElement('input');i.type='number';i.id='sh-angle';i.step='1';i.value=cur?cur.value:'0';
+  const set=()=>{const v=parseFloat(i.value);if(cur&&!isNaN(v)){cur.value=String(v);homeInput('angle',v);rfSrcRender();}closeSheet();};
+  i.addEventListener('keydown',e=>{if(e.key==='Enter')set();});
+  f.append(l,i);
+  const row=document.createElement('div');row.className='btnrow';
+  const ok=document.createElement('button');ok.className='btn primary';ok.textContent='Set';ok.onclick=set;
+  const no=document.createElement('button');no.className='btn';no.textContent='Cancel';no.onclick=closeSheet;
+  row.append(ok,no);box.append(f,row);
+  setTimeout(()=>{try{i.focus();i.select();}catch(e){}},50);
+}
+// summary tap → the same pickers as the chip bar
+function openSummarySheet(){
+  openSheet('<h3>Session</h3>');
+  const list=document.createElement('div');list.className='flist';
+  actItems().forEach(([k,v,kind])=>{
+    const b=document.createElement('button');b.type='button';
+    const a=document.createElement('span');a.className='fk';a.textContent=k;
+    const c=document.createElement('span');c.className='fv';c.textContent=v;
+    b.append(a,c);b.onclick=()=>pickSheet(kind);list.appendChild(b);
+  });
+  document.getElementById('sbox').appendChild(list);
+}
+const PAGE_NAMES={home:'Home',traj:'Trajectory',solver:'Solver',wind:'Wind',dope:'Dope'};
+function hdrPage(p){const e=document.getElementById('hdr-page');if(e)e.textContent=PAGE_NAMES[p]||(MORE_PAGES.find(m=>m[0]===p)||[])[1]||'';}
+function fieldSync(statusMsg){
+  const set=(id,t)=>{const e=document.getElementById(id);if(e)e.textContent=t;};
+  const copy=(a,b)=>{const e=document.getElementById(a);if(e)set(b,e.textContent);};
+  copy('home-elev','fa-elev');copy('home-elev-u','fa-elev-u');copy('home-wind','fa-wind');copy('home-wind-u','fa-wind-u');
+  if(statusMsg!=null)set('fa-status',statusMsg);
+  const r=getRifle(),p=getProj(),cw=getWx(S.curWxId),t=S.ct??cw?.temp;
+  set('fsum-txt',[r?r.name:'Choose rifle',p?p.name:'projectile',S.mv?ut('vel',S.mv):null,t!=null?ut('temp',t):null].filter(Boolean).join(' · '));
+  const grab=document.getElementById('home-distance')?.classList.contains('grab');
+  if(!grab)fdShow(Math.round(fdToDisp(S.dist_m)));
+  set('fd-unit',lab('range',fdUnit()));
+  const ang=document.getElementById('home-angle');set('fd-angle','Angle '+(ang?(+ang.value||0):0)+'°');
+  set('fd-wind','Wind '+ut('wind',S.wind.speed)+' @ '+Math.round(S.wind.dir)+'°'+(S.wind.source==='calypso'?' ⊙':''));
+  // §20E: a distance that no longer matches the last ranging is a manual override
+  const src=document.getElementById('fd-src');
+  if(src){const f=typeof rfFilled!=='undefined'?rfFilled:null,same=f&&Math.abs(S.dist_m-f.m)<0.05;
+    src.textContent=!f?'':same?'⊙ '+f.name:'✎ manual';src.classList.toggle('man',!!f&&!same);}
+  const tip=document.getElementById('fd-tip');if(tip)tip.style.display=APP.fdTipSeen?'none':'';
+}
+function fieldInit(){
+  const b=document.getElementById('fd-btn');
+  if(b&&!b._g){b._g=true;senGesture(b,{tap:()=>pickSheet('dist'),hold:fdHold,drag:fdDrag,end:fdEnd});}
+  hdrPage(curPage());fieldSync();
 }
 
 /* ── benchrest modules ── */
@@ -5771,6 +5970,7 @@ DB.dopeCards.forEach(migrateDopeCard);
 S.tgtBrg=APP.hmTgtBrg??null;syncBearingFields();renderCalMount();
 refreshUnits();startUnitObserver();
 initLayouts();applyHomeLayout();
+fieldInit();  // SANDBOX r1
 applyLayout();window.addEventListener('resize',()=>dbnc('layout',applyLayout,120));
 renderStoreWarn();renderIosHint();requestPersist();fxCheck();
 importFromLink();

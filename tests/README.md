@@ -137,6 +137,9 @@ npm install jsdom fake-indexeddb --prefix /tmp/jsdom
 (cd tests && NODE_PATH=/tmp/jsdom/node_modules node rangefindertest.js ../index.html)
 (cd tests && NODE_PATH=/tmp/jsdom/node_modules node chronotest.js ../index.html)
 (cd tests && NODE_PATH=/tmp/jsdom/node_modules node labradartest.js ../index.html)
+
+# SEN-sandbox r1: Field screen (summary, answer, distance gestures)
+(cd tests && NODE_PATH=/tmp/jsdom/node_modules node fieldtest.js ../index.html)
 ```
 
 ## Provenance
