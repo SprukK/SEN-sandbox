@@ -30,7 +30,7 @@ async function open(dev,ls){
   const dom=new JSDOM(fs.readFileSync(FILE,'utf8'),{runScripts:'dangerously',pretendToBeVisual:true,url:'https://x.test/',
     beforeParse(w){w.HTMLCanvasElement.prototype.getContext=()=>new Proxy({},{get:(t,k)=>k==='measureText'?()=>({width:10}):()=>{}});
       Object.defineProperty(w.navigator,'bluetooth',{value:{requestDevice:async()=>w.nextDev||dev}});w.alert=()=>{};w.confirm=()=>true;
-      if(ls)w.localStorage.setItem('sen_platform_v1',ls);}});
+      if(ls)w.localStorage.setItem('sen_sandbox_v1',ls);}});
   const w=dom.window;w.errs=[];w.addEventListener('error',e=>w.errs.push(e.message));await wait(700);all.push(w);return w;
 }
 const J=(w,e)=>JSON.parse(w.eval('JSON.stringify('+e+')'));
@@ -88,7 +88,7 @@ const cm=w.document.getElementById('ble-avg-min');cm.value='7';cm.dispatchEvent(
 chk('custom 7 min → 420 s, added to both lists',J(w,'APP.windAvgS')===420&&/\|7 min\|/.test(opts('home-avg-win'))&&w.document.getElementById('home-avg-win').value==='420');
 chk('garbage window values are clamped (text or 0 → default 60 s, 5 s → 10 s, 1e9 → 2 h)',['x',0,5,1e9].map(v=>w.eval(`APP.windAvgS=${JSON.stringify(v)};wavgWin()`)).join()==='60,60,10,7200');
 w.eval('setWavgWin(1800)');await wait(30);
-const r2=await open(unit('WDOT-B1F9A6',T1),w.localStorage.getItem('sen_platform_v1'));
+const r2=await open(unit('WDOT-B1F9A6',T1),w.localStorage.getItem('sen_sandbox_v1'));
 chk('window survives a restart (30 min)',J(r2,'APP.windAvgS')===1800&&r2.document.getElementById('home-avg-win').value==='1800');
 
 // 5. Live stream: own average from INSTANT readings, the unit's average field ignored.

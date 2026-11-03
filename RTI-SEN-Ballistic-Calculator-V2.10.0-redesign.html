@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0a0b0e">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
-<title>SEN Ballistics V2.10.0</title>
+<title>SEN Sandbox V2.10.0</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Archivo:wght@500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
@@ -313,7 +313,7 @@ details.disc .dbody{padding:0 14px 14px}
 <body>
 
 <div class="apphdr">
-  <div class="brand">SEN<span>·</span>Ballistics</div>
+  <div class="brand">SEN<span>·</span>Sandbox</div>
   <div class="ver">V2.10.0 · minor<br>RTI Mora Sniper · RK4 G7/G1</div>
 </div>
 
@@ -1768,13 +1768,14 @@ function downloadScopePrompt(){
    from a newer schema is refused instead of being silently misread. */
 /* CORE-09 (V1.25.1) — STORAGE CONTRACT. Main and the Lab app (SprukK/SEN-Testing) share the
    sprukk.github.io origin, so they share IndexedDB, localStorage and CacheStorage. Namespaces:
+   SEN-sandbox fork: owns IndexedDB 'sen_sandbox' · localStorage 'sen_sandbox_v1' · caches 'sen-sandbox-*' (isolated from Main and Lab).
      Main owns  IndexedDB 'sen_main' · localStorage 'sen_platform_*' · caches 'sen-ballistics-*' (+ legacy 'sen-calc-*')
      Lab owns   IndexedDB 'sen_lab'  · localStorage 'sen_lab_*'      · caches 'sen-ble-probe-*', 'sen-lab-*'
    Lab may READ Main's 'sen_main' / 'sen_platform_v1' snapshot (read-only transactions, never
    creates the database) and checks SCHEMA before trusting it; neither app writes the other's
    namespace. Changing IDB_NAME, IDB_STORE, IDB_KEY, SK or the snapshot shape breaks the Lab reader. */
-const SK='sen_platform_v1';
-const IDB_NAME='sen_main',IDB_STORE='kv',IDB_KEY='db';
+const SK='sen_sandbox_v1';
+const IDB_NAME='sen_sandbox',IDB_STORE='kv',IDB_KEY='db';
 const SCHEMA={rifles:1,projectiles:1,weathers:1,scopes:1,reticles:1,dopeCards:2};
 /* V1.23.0 CORE-12 — dope cards v2: each target gains label, compass bearing, size (mm), position,
    shots; each stage an optional time limit (s). v1 cards (stored or imported) are upgraded with

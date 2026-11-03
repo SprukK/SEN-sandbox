@@ -1,0 +1,26 @@
+{
+  "name": "SEN Sandbox (UI redesign)",
+  "short_name": "SEN Sandbox",
+  "description": "UI redesign sandbox of the SEN Ballistics Calculator — separate data from the main app.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0b0e",
+  "theme_color": "#0a0b0e",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "id": "/sen-sandbox-sprukk/"
+}

@@ -6,7 +6,8 @@
 // Usage: node stabtest.js <new.html> <previous-release.html>   (needs jsdom; see README.md)
 const {JSDOM}=require('jsdom'),fs=require('fs');
 const [NEW,OLD]=process.argv.slice(2);
-const SK='sen_platform_v1';
+const SK='sen_sandbox_v1';
+const OLD_SK='sen_platform_v1'; // SEN-sandbox: previous Main releases store under Main's key
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
 let pass=0,fail=0;
 const chk=(n,ok,extra)=>{console.log((ok?'  PASS  ':'  FAIL  ')+n+(extra?'   '+extra:''));ok?pass++:fail++;};
@@ -29,7 +30,7 @@ const o=await open(OLD);
 chk('previous release seeded Queen C 2.283 and King C 1.886',proj(o,/^Altaros ATP Queen/).c===2.283&&proj(o,/^Altaros ATP King/).c===1.886);
 o.eval(`const b={cal:'.30',mfg:'TEST',type:'slug',diam:7.62,mass:50,oal:17,bcg7:0.1,bcg1:0.2,ff:0,notes:''};
   DB.projectiles.push({...b,id:'t-own',name:'TEST own C',c:2.5},{...b,id:'t-des',name:'TEST design C',c:2.699});saveDB();`);await wait(50);
-const w=await open(NEW,o.localStorage.getItem(SK));
+const w=await open(NEW,o.localStorage.getItem(OLD_SK));
 // 2. Upgrade.
 const q=proj(w,/^Altaros ATP Queen/),k=proj(w,/^Altaros ATP King/);
 chk('upgrade: Queen and King C cleared → Miller, with a note',q.c===0&&k.c===0&&/C 2\.283 cleared in V1\.30\.0/.test(q.notes)&&/C 1\.886 cleared/.test(k.notes));

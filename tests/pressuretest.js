@@ -6,7 +6,8 @@
 // Usage: node pressuretest.js <new.html> <previous-release.html>   (needs jsdom; see README.md)
 const {JSDOM}=require('jsdom'),fs=require('fs');
 const [NEW,OLD]=process.argv.slice(2);
-const SK='sen_platform_v1';
+const SK='sen_sandbox_v1';
+const OLD_SK='sen_platform_v1'; // SEN-sandbox: previous Main releases store under Main's key
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
 let pass=0,fail=0;
 const chk=(n,ok,extra)=>{console.log((ok?'  PASS  ':'  FAIL  ')+n+(extra?'   '+extra:''));ok?pass++:fail++;};
@@ -24,7 +25,7 @@ const st=(q,h)=>q*Math.pow(1-2.25577e-5*h,5.25588);
 console.log('=== PRESSURE TYPE TEST: '+NEW+' ===');
 const o=await open(OLD);
 o.eval(`DB.weathers.push({id:'my',name:'My range',temp:12,pres:990,rh:70,alt:450,notes:''});saveDB();`);await wait(50);
-const w=await open(NEW,o.localStorage.getItem(SK));
+const w=await open(NEW,o.localStorage.getItem(OLD_SK));
 const wx=n=>J(w,`DB.weathers.find(x=>x.name==='${n}')`);
 const ed=wx('Everyday Default (20°C)');
 chk('upgrade: seeded profiles → sea level (QNH); Everyday note now states ρ 1.1516',['Everyday Default (20°C)','Summer Hot (30°C)','Winter Local (0°C)','Global Worst-Case (sea level)'].every(n=>wx(n).presType==='sea')&&/ρ 1\.1516/.test(ed.notes)&&!/1\.1934/.test(ed.notes),ed.notes);

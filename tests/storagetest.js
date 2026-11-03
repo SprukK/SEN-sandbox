@@ -5,7 +5,8 @@
 const {JSDOM}=require('jsdom'),fs=require('fs');
 const {IDBFactory,IDBKeyRange}=require('fake-indexeddb');
 const [NEW,OLD]=process.argv.slice(2);
-const SK='sen_platform_v1';
+const SK='sen_sandbox_v1';
+const OLD_SK='sen_platform_v1'; // SEN-sandbox: previous Main releases store under Main's key
 const IPHONE='Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1';
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
 let pass=0,fail=0;
@@ -24,7 +25,7 @@ async function open(file,{idb,ls,ua}={}){
   await wait(700);
   return w;
 }
-const idbGet=(idb,key)=>new Promise((res,rej)=>{const r=idb.open('sen_main',1);
+const idbGet=(idb,key)=>new Promise((res,rej)=>{const r=idb.open('sen_sandbox',1);
   r.onupgradeneeded=()=>r.result.createObjectStore('kv');
   r.onsuccess=()=>{const q=r.result.transaction('kv','readonly').objectStore('kv').get(key);q.onsuccess=()=>{r.result.close();res(q.result);};q.onerror=()=>rej(q.error);};
   r.onerror=()=>rej(r.error);});
@@ -36,7 +37,7 @@ console.log('=== STORAGE TEST: '+NEW+' ===');
 // A. Real legacy data: the previous release writes its snapshot to localStorage.
 const old=await open(OLD);
 old.eval("DB.rifles.push({...DB.rifles[0],id:'r-test',name:'TEST RIFLE'});saveDB();");
-const legacy=old.localStorage.getItem(SK);
+const legacy=old.localStorage.getItem(OLD_SK);
 chk('previous release wrote a localStorage snapshot with TEST RIFLE',!!legacy&&rifleNames(legacy).includes('TEST RIFLE'));
 
 // B. First launch of the new version migrates it into IndexedDB.

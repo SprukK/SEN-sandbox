@@ -5,7 +5,7 @@
 // Usage: node homelayouttest.js <app.html> <previous-release.html>   (needs jsdom; see README.md)
 const {JSDOM}=require('jsdom'),fs=require('fs');
 const [NEW,OLD]=process.argv.slice(2);
-const SK='sen_platform_v1';
+const SK='sen_sandbox_v1';
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
 let pass=0,fail=0;
 const chk=(n,ok,extra)=>{console.log((ok?'  PASS  ':'  FAIL  ')+n+(extra?'   '+extra:''));ok?pass++:fail++;};

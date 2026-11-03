@@ -5,14 +5,15 @@
 // Usage: node coursetest.js <new.html> <previous-release.html>   (needs jsdom; see README.md)
 const {JSDOM}=require('jsdom'),fs=require('fs');
 const [NEW,OLD]=process.argv.slice(2);
-const SK='sen_platform_v1';
+const SK='sen_sandbox_v1';
+const OLD_SK='sen_platform_v1'; // SEN-sandbox: previous Main releases store under Main's key
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
 let pass=0,fail=0;
 const chk=(n,ok,extra)=>{console.log((ok?'  PASS  ':'  FAIL  ')+n+(extra?'   '+extra:''));ok?pass++:fail++;};
 const all=[];
 async function open(file,{ls,setup}={}){
   const dom=new JSDOM(fs.readFileSync(file,'utf8'),{runScripts:'dangerously',pretendToBeVisual:true,url:'https://x.test/',
-    beforeParse(w){w.alerts=[];w.alert=m=>w.alerts.push(String(m));w.print=()=>{};if(ls)w.localStorage.setItem(SK,ls);
+    beforeParse(w){w.alerts=[];w.alert=m=>w.alerts.push(String(m));w.print=()=>{};if(ls){w.localStorage.setItem(SK,ls);w.localStorage.setItem(OLD_SK,ls);}
       w.HTMLCanvasElement.prototype.getContext=()=>new Proxy({},{get:(t,k)=>k==='measureText'?()=>({width:10}):()=>{}});if(setup)setup(w);}});
   const w=dom.window;w.errs=[];w.addEventListener('error',e=>w.errs.push(e.message));
   await wait(700);all.push(w);return w;
@@ -31,7 +32,7 @@ o.eval(`Bus.setRifle(DB.rifles[0].id);Bus.setProj(DB.projectiles.find(p=>/Queen/
   c.stages[0].dists[1].wind=4;c.stages[0].dists[1].wdir=90;c.stages[0].dists[2].wind=3;c.stages[0].dists[2].wdir=300;c.stages[0].dists[0].angle=10;
   addStage();c.stages[1].dists[0].range=175;c.stages[1].dists[0].wind=5;c.stages[1].dists[0].wdir=45;
   saveDB();loadDope();calcDope();`);
-const oldCells=cells(o),legacy=o.localStorage.getItem(SK);
+const oldCells=cells(o),legacy=o.localStorage.getItem(OLD_SK);
 chk('previous release computed a 4-target card',oldCells.length===4&&oldCells.every(x=>!/—\|—\|—/.test(x)),oldCells.join(' / '));
 
 // 2. The new build upgrades it and computes bit-identical dope.

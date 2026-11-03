@@ -6,7 +6,8 @@
 // Usage: node bcmigtest.js <new.html> <previous-release.html>   (needs jsdom; see README.md)
 const {JSDOM}=require('jsdom'),fs=require('fs');
 const [NEW,OLD]=process.argv.slice(2);
-const SK='sen_platform_v1';
+const SK='sen_sandbox_v1';
+const OLD_SK='sen_platform_v1'; // SEN-sandbox: previous Main releases store under Main's key
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
 let pass=0,fail=0;
 const chk=(n,ok,extra)=>{console.log((ok?'  PASS  ':'  FAIL  ')+n+(extra?'   '+extra:''));ok?pass++:fail++;};
@@ -37,7 +38,7 @@ o.eval(`const base={cal:'.25',mfg:'TEST',type:'slug',diam:6.35,oal:12.9,c:0,ff:0
   DB.projectiles.push({...base,id:'t1',name:'T1 trued G1',mass:66,oal:13.9,bcg7:0,bcg1:+(${old1}).toFixed(4),bcTrued:'single·g1·2026-10-01',notes:'my note'});
   DB.projectiles.push({...base,id:'u',name:'U maker BC',mass:60,bcg7:0.128,bcg1:0.245});
   saveDB();`);
-const ls=o.localStorage.getItem(SK);
+const ls=o.localStorage.getItem(OLD_SK);
 
 // 2. The new build converts them on first launch.
 const w=await open(NEW,ls);

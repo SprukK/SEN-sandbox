@@ -1,7 +1,7 @@
-// Service-worker test (V1.25.1, CORE-09): Main and the Lab app share one CacheStorage on
-// sprukk.github.io. Activating a new Main release must delete only Main's own old caches
-// (sen-ballistics-*, legacy sen-calc-*) and never the Lab probe's (sen-ble-probe-*, sen-lab-*)
-// or anything else. Runs the real sw.js in a sandbox with a simulated CacheStorage.
+// Service-worker test (SEN-sandbox): the sandbox, Main and the Lab app share one CacheStorage on
+// sprukk.github.io. Activating a new sandbox build must delete only the sandbox's own old caches
+// (sen-sandbox-*) and never Main's (sen-ballistics-*, legacy sen-calc-*), the Lab probe's
+// (sen-ble-probe-*, sen-lab-*) or anything else. Runs the real sw.js in a sandbox with a simulated CacheStorage.
 // Usage: node swtest.js <sw.js>
 const fs=require('fs'),vm=require('vm');
 const FILE=process.argv[2]||'../sw.js';
@@ -10,7 +10,7 @@ const chk=(n,ok,extra)=>{console.log((ok?'  PASS  ':'  FAIL  ')+n+(extra?'   '+e
 
 (async()=>{
 console.log('=== SERVICE WORKER TEST: '+FILE+' ===');
-const store=new Set(['sen-ballistics-v1.24.2','sen-ballistics-v1.25.0','sen-calc-v3','sen-ble-probe-v1.1.1','sen-lab-v1','other-site-cache']);
+const store=new Set(['sen-sandbox-v0.0.1','sen-ballistics-v1.24.2','sen-ballistics-v1.25.0','sen-calc-v3','sen-ble-probe-v1.1.1','sen-lab-v1','other-site-cache']);
 const handlers={};
 const ctx={
   self:{addEventListener:(t,f)=>{handlers[t]=f;},skipWaiting:()=>{},clients:{claim:()=>Promise.resolve()}},
@@ -25,8 +25,9 @@ let wait=null;handlers.install({waitUntil:p=>{wait=p;}});await wait;
 chk('install creates the current cache',store.has(CACHE),CACHE);
 handlers.activate({waitUntil:p=>{wait=p;}});await wait;
 const left=[...store].sort();
-chk('old Main caches deleted (incl. legacy sen-calc-*)',!store.has('sen-ballistics-v1.24.2')&&!store.has('sen-ballistics-v1.25.0')&&!store.has('sen-calc-v3'),left.join(', '));
-chk('current Main cache kept',store.has(CACHE));
+chk('old sandbox caches deleted',!store.has('sen-sandbox-v0.0.1'),left.join(', '));
+chk('current sandbox cache kept',store.has(CACHE)&&CACHE.startsWith('sen-sandbox-'),CACHE);
+chk('Main caches untouched (incl. legacy sen-calc-*)',store.has('sen-ballistics-v1.24.2')&&store.has('sen-ballistics-v1.25.0')&&store.has('sen-calc-v3'));
 chk('Lab probe caches untouched',store.has('sen-ble-probe-v1.1.1')&&store.has('sen-lab-v1'));
 chk('unrelated caches untouched',store.has('other-site-cache'));
 console.log('\nPASS '+pass+'   FAIL '+fail);
