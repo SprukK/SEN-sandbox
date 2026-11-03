@@ -40,17 +40,25 @@ w.eval(`Bus.setRifle(DB.rifles.find(r=>/\\.25/.test(r.name)).id);Bus.setProj(DB.
   Bus.setWx('cur',DB.weathers[0].id);Bus.setWx('zero',DB.weathers[0].id);S.mv=255;Bus.setWind(3,90,'manual');S.dist_m=100;Bus.notify();`);await wait(40);
 
 // 1. Field layout seeded once, at the end; its modules
-chk('Field layout seeded once, at the end of the list',J(w,"APP.layouts.filter(l=>l.tpl==='field').length")===1&&J(w,'APP.layouts[APP.layouts.length-1].name')==='Field'&&w.eval('APP.fieldSeeded')===true);
-chk('Default stays in use and shows no Field module',J(w,'activeLayout().name')==='Default'&&['home-summary','home-answer','home-distance'].every(id=>$(w,id).classList.contains('mod-off'))&&!$(w,'home-dash').classList.contains('ans-on'));
+chk('r2: Field is seeded once, first and in use',J(w,"APP.layouts.filter(l=>l.tpl==='field').length")===1&&J(w,'APP.layouts[0].name')==='Field'&&J(w,'activeLayout().name')==='Field'&&w.eval('APP.fieldDefault')===true);
+w.eval(`useLayout(APP.layouts.find(l=>l.tpl==='default').id)`);await wait(40);
+chk('Classic (the pre-r1 Home) shows no Field module',J(w,'activeLayout().name')==='Classic'&&['home-summary','home-answer','home-distance','home-devices'].every(id=>$(w,id).classList.contains('mod-off'))&&!$(w,'home-dash').classList.contains('ans-on'));
 w.eval(`useLayout(APP.layouts.find(l=>l.tpl==='field').id)`);await wait(40);
 const vis=[...$(w,'page-home').children].filter(e=>e.id&&!e.classList.contains('mod-off')&&!['home-layout-bar','home-setup'].includes(e.id)).map(e=>e.id).join();
-chk('Field shows summary · answer · distance · reticle · turret, in that order',vis==='home-summary,home-answer,home-distance,home-dash,home-turret-panel',vis);
+chk('Field shows summary · answer · distance · devices · reticle · turret, in that order',vis==='home-summary,home-answer,home-distance,home-devices,home-dash,home-turret-panel',vis);
 chk('reticle module hides its own clicks when Answer is on',$(w,'home-dash').classList.contains('ans-on'));
 const w2=await open(w.localStorage.getItem(SK));
 Object.defineProperty(w2,'innerWidth',{configurable:true,value:780});Object.defineProperty(w2,'innerHeight',{configurable:true,value:720});w2.eval('applyLayout()');await wait(40);
 const rail=[...w2.document.getElementById('sol-rail').children].map(e=>e.id).filter(Boolean).join();
 chk('inner screen (780 px): reticle + turret in the second pane, summary / answer / distance on the left',/home-dash/.test(rail)&&!!w2.document.querySelector('#page-home #home-answer:not(.mod-off)')&&!!w2.document.querySelector('#page-home #home-distance:not(.mod-off)'),rail);
 
+// r1 → r2 upgrade: a store from r1 (Default in use, Field last, no device row) → Field first, in use, devices under Distance
+const old=JSON.parse(w.localStorage.getItem(SK)||'null');
+if(old&&old.app2){const a2=old.app2,F=a2.layouts.find(l=>l.tpl==='field');a2.layouts=a2.layouts.filter(l=>l!==F).map(l=>l.tpl==='default'?{...l,name:'Default'}:l);
+  F.mods=F.mods.filter(m=>m.id!=='devices').concat([{id:'devices',on:false}]);a2.layouts.push(F);a2.layoutId=a2.layouts[0].id;delete a2.fieldDefault;a2.fieldSeeded=true;
+  const u=await open(JSON.stringify(old));
+  chk('r1 store upgraded: Field first and in use, devices under Distance, Default renamed Classic',J(u,'APP.layouts.map(l=>l.name)').join()==='Field,Classic,Benchrest 50 m,Benchrest 100 m,PRS,Big bore'&&J(u,'activeLayout().name')==='Field'&&J(u,"activeLayout().mods.filter(m=>m.on).map(m=>m.id)").join()==='summary,answer,distance,devices,solution,turret',J(u,"activeLayout().mods.filter(m=>m.on).map(m=>m.id)").join());
+}else chk('r1 store upgraded (store not readable in this run)',false);
 // 2. Answer = solver, metric and yards; status carried over
 const solved=()=>J(w,`(()=>{const tr=homeTraj(),z=zeroConds(),sc=rifleScope(getRifle()),s=solveShot(tr.pts,nearestPt,z.range,S.dist_m,0,S.wind.speed,S.wind.dir,S.mv,sc?.clickStepMrad||0.1,z.wSpd,z.wDir);
   return[(s.clElev>=0?'↑':'↓')+Math.abs(s.clElev).toFixed(0),(s.clWind>=0?'→':'←')+Math.abs(s.clWind).toFixed(0)];})()`);
@@ -119,9 +127,24 @@ await holdDrag(w,fd,[[12,0]]);
 chk('…after a drag it is marked manual',txt(w,'fd-src')==='✎ manual'&&$(w,'fd-src').classList.contains('man'));
 
 // 7. Angle sheet
+await wait(350);   // the click right after a long press is swallowed for 300 ms
 $(w,'fd-angle').click();await wait(20);
 const ai=$(w,'sh-angle');ai.value='20';ai.dispatchEvent(new w.KeyboardEvent('keydown',{key:'Enter'}));await wait(20);
 chk('angle sheet sets Home angle 20°, answer re-solved',$(w,'home-angle').value==='20'&&txt(w,'fd-angle')==='Angle 20°'&&txt(w,'fa-elev')===txt(w,'home-elev'));
+
+// 7b. On-screen keyboard: sheets sit above it (--kb = window height − visual viewport height)
+{const dom2=new JSDOM(fs.readFileSync(FILE,'utf8'),{runScripts:'dangerously',pretendToBeVisual:true,url:'https://x.test/',
+  beforeParse(v){Object.defineProperty(v,'innerWidth',{configurable:true,value:412});Object.defineProperty(v,'innerHeight',{configurable:true,value:915});v.alert=()=>{};v.scrollTo=()=>{};
+    const vv=new v.EventTarget();vv.height=915;vv.offsetTop=0;v.visualViewport=vv;
+    v.HTMLCanvasElement.prototype.getContext=()=>new Proxy({},{get:(t,k)=>k==='measureText'?()=>({width:10}):()=>{}});}});
+ const k=dom2.window;await wait(700);
+ const kb0=k.document.documentElement.style.getPropertyValue('--kb');
+ k.visualViewport.height=515;k.visualViewport.dispatchEvent(new k.Event('resize'));
+ const kb1=k.document.documentElement.style.getPropertyValue('--kb');
+ k.visualViewport.height=915;k.visualViewport.dispatchEvent(new k.Event('resize'));
+ chk('keyboard open (visual viewport 400 px shorter) → sheets lifted by 400 px, back to 0 when it closes',kb0==='0px'&&kb1==='400px'&&k.document.documentElement.style.getPropertyValue('--kb')==='0px',kb0+' → '+kb1);
+ const css=fs.readFileSync(FILE,'utf8');
+ chk('…the sheet box sits on --kb and its height leaves room for it',/\.sbox\{bottom:var\(--kb,0px\);max-height:calc\(84vh - var\(--kb,0px\)\)\}/.test(css));}
 
 // 8. Header, layout sheet, text only, no errors
 w.eval(`gotoPage('traj')`);const h1=txt(w,'hdr-page');w.eval(`gotoPage('settings')`);const h2=txt(w,'hdr-page');w.eval(`gotoPage('home')`);

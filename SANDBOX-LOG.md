@@ -5,6 +5,28 @@ Versions: `V{Main base}-r{n}`. Deploy set per release: `RTI-SEN-Ballistic-Calcul
 
 ---
 
+## V2.10.0-r2 — Device row; Field is the default; Android back button; r1 fixes
+
+**Owner feedback on r1 (2026-11-03).** Field should be the default; the distance number sat low in its box; the on-screen keyboard covered the Set / Cancel buttons of the distance sheet; Android's back button closed the app.
+
+**Change.**
+- **Device row** (new Home module *Devices*, on in Field under Distance): **Weather · Range · Chrono** pills. Tap pauses / resumes that kind of sensor; with nothing connected the tap opens its popup. Hold (350 ms, a bar fills under the pill) → on release, a popup listing the connected devices, each with its own Pause / Resume, plus Connect / Station setup / Shot string · Xero import.
+  - *Weather* — pause all = Main's Home live-wind switch off and the last wind kept as manual; resume = live on again (per-unit pauses cleared). A paused Calypso drops out of the wind stations exactly like a stale one ("paused"); a paused session unit holds the session wind as manual.
+  - *Range* — pause all = Main's "each ranging fills" switch off; a paused unit still shows its ranging but fills nothing.
+  - *Chrono* (LabRadar LX) — paused: a shot is shown, not added to the string. The popup shows the string (shots, MV, ES, SD) and **Use MV → session** (Main's own `chUse`); MV never changes otherwise.
+  - Pill states, readable without colour: outline "connect" · filled with a live dot and the last value · dashed gold "MAN" · "1/2" when some units are paused.
+- **Field is the default layout**: first and in use; the pre-r1 Home is kept as **Classic**. Runs once per store, so r1 installs move over (their Field gets the device row) and data imported from Main gets it too.
+- **Android back**: one guard history entry; back closes an open sheet → returns to the previous page → goes Home → on Home shows "Press back again to close" and the next press closes the app.
+- **Distance value centred** vertically (number + unit as one baseline block).
+- **Keyboard**: sheets sit above the on-screen keyboard (`--kb` from the visual viewport).
+- **Gestures**: the click Chrome sends after a long press is swallowed (300 ms), so a popup opened by a hold no longer closes under the finger.
+
+**Files.** `index.html`, `RTI-SEN-Ballistic-Calculator-V2.10.0-r2-redesign.html` (identical), `sw.js` (CACHE `sen-sandbox-v2.10.0-r2`), `tests/devicetest.js` (new, 33), `tests/fieldtest.js` (37: + Field default, r1 → r2 upgrade, keyboard offset), `tests/homelayouttest.js` and `tests/rendertest.js` (switch to Classic first — they measure the pre-r1 Home; 18 modules), `tests/README.md`. Device hooks in Main code are one-line holds: `stnState` (paused reason), `updateBleDisplay` (paused session unit), `rfFrame` (paused unit), `lrShot` (paused LabRadar), plus `devSync()` after `calRender` / `rfRender` / `lrRender`.
+
+**Verify.** All 31 Main suites + `fieldtest.js` 37/37 + `devicetest.js` 33/33 green; `runtests.js` unchanged 143/143. Chromium with CDP touch at 412 and 780 px: tap and hold on the pills (popup stays open), real `history.back()` closes sheets and walks pages, toast on Home, no sideways scroll, no errors. **On the Honor (owner):** keyboard no longer covers Set / Cancel; back button behaviour; pills with the real Calypsos, Titan and LabRadar.
+
+---
+
 ## V2.10.0-r1 — Field screen: summary, answer, drag-or-type distance
 
 **Problem.** On the outer screen the distance input sat at 1291 px, below the nav bar (852 px), and the clicks sat under a ~420 px reticle. Changing distance meant scrolling or swiping the chip bar. (UX review, 2026-11-03.)

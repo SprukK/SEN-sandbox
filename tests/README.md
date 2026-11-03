@@ -140,6 +140,9 @@ npm install jsdom fake-indexeddb --prefix /tmp/jsdom
 
 # SEN-sandbox r1: Field screen (summary, answer, distance gestures)
 (cd tests && NODE_PATH=/tmp/jsdom/node_modules node fieldtest.js ../index.html)
+
+# SEN-sandbox r2: device row (Weather · Range · Chrono), Field as default, Android back button
+(cd tests && NODE_PATH=/tmp/jsdom/node_modules node devicetest.js ../index.html)
 ```
 
 ## Provenance

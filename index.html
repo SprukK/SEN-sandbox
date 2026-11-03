@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0a0b0e">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
-<title>SEN Sandbox V2.10.0-r1</title>
+<title>SEN Sandbox V2.10.0-r2</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Archivo:wght@500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
@@ -190,15 +190,37 @@ body:has(#page-home.active):has(#home-summary:not(.mod-off)) #actbar{display:non
 .fdist{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:12px 14px;margin-bottom:10px}
 .fdist-l{font-family:var(--sans);font-size:13px;color:var(--text3);display:flex;justify-content:space-between}
 .fdist-src{font-size:12px;color:var(--accent)}.fdist-src.man{color:var(--gold)}
-.fdist-v{width:100%;display:flex;align-items:baseline;justify-content:center;gap:6px;min-height:72px;margin:4px 0;background:var(--bg);border:1px solid var(--border);border-radius:10px;color:var(--text);
+.fdist-v{width:100%;display:flex;align-items:center;justify-content:center;gap:6px;min-height:72px;padding:0;margin:4px 0;background:var(--bg);border:1px solid var(--border);border-radius:10px;color:var(--text);
   touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent;transition:border-color .12s,background .12s}
 .fdist-v #fd-val{font-family:var(--disp);font-size:44px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1}
+.fdist-num{display:inline-flex;align-items:baseline;gap:6px}  /* r2: number + unit on one baseline, centred as a block */
 .fdist-u{font-family:var(--sans);font-size:18px;color:var(--text2)}
 .fdist-hint{font-size:16px;color:var(--text3);margin-left:6px}
 .fdist.grab .fdist-v{border-color:var(--accent);background:rgba(114,180,194,.10)}
 .fdist-tip{font-size:12px;color:var(--text3);text-align:center;margin-bottom:6px}
 .fdist-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .fdist-sub{min-height:48px;padding:8px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--sans);font-size:14px}
+.fdev{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.fpill{position:relative;overflow:hidden;min-height:56px;padding:8px 6px;border-radius:12px;background:transparent;border:1.5px solid var(--border2);color:var(--text3);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+.fpill-n{font-family:var(--sans);font-size:14px;font-weight:600}
+.fpill-v{font-family:var(--mono);font-size:12px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fpill.live{background:rgba(114,180,194,.16);border-color:var(--accent);color:var(--text)}
+.fpill.live .fpill-n::before{content:'● ';color:var(--green)}
+.fpill.live .fpill-v{color:var(--accent)}
+.fpill.man{border-style:dashed;border-color:var(--gold);color:var(--text2)}
+.fpill.man .fpill-v{color:var(--gold);font-weight:600}
+.fpill::after{content:'';position:absolute;left:0;bottom:0;height:3px;width:0;background:var(--accent)}
+.fpill.pressing::after{width:100%;transition:width .35s linear}
+.devlist{margin-bottom:8px}
+.devrow{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px}
+.devrow-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;font-size:14px}
+.devrow-i{font-size:12px;color:var(--text2)}
+.devrow-tag{font-size:11px;color:var(--accent)}
+.devrow .btn{min-height:48px;min-width:96px}
+.devstr{font-size:13px;color:var(--text2);margin:6px 0 10px}
+.sen-toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:80;background:var(--bg4);color:var(--text);border:1px solid var(--border2);border-radius:20px;padding:10px 18px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s}
+.sen-toast.on{opacity:1}
 .fseg{display:flex;gap:6px;margin:12px 0}
 .fseg button{flex:1;min-height:48px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text2);font-size:14px}
 .fseg button.on{border-color:var(--accent);color:var(--accent)}
@@ -320,6 +342,10 @@ html.fold.pane-page #sol-rail{width:min(50vw,600px)}
 .sitem.on{border-color:var(--accent);color:var(--accent)}
 .sitem .sm{font-size:9.5px;color:var(--text3);text-align:right;flex-shrink:0}
 @media(min-width:760px){.sbox{position:relative;margin:7vh auto;max-width:560px;border-radius:12px;border:1px solid var(--border2)}}
+/* SANDBOX r2: --kb = height of the on-screen keyboard (visualViewport); sheets sit above it */
+.sbox{bottom:var(--kb,0px);max-height:calc(84vh - var(--kb,0px))}
+.sheet{overflow-y:auto;padding-bottom:var(--kb,0px)}
+@media(min-width:760px){.sbox{bottom:auto;max-height:none}}
 /* progressive disclosure — secondary Home panels collapse, summary keeps the live value visible */
 details.disc{background:var(--bg2);border:1px solid var(--border);border-radius:9px;margin-bottom:12px}
 details.disc>summary{list-style:none;cursor:pointer;padding:12px 14px;display:flex;align-items:center;
@@ -392,9 +418,15 @@ details.disc .dbody{padding:0 14px 14px}
   </div>
   <div class="fdist mod-off" id="home-distance">
     <div class="fdist-l">Distance <span class="fdist-src" id="fd-src"></span></div>
-    <button type="button" class="fdist-v" id="fd-btn" aria-label="Distance — tap to type, hold and drag to adjust"><span id="fd-val">—</span><span class="fdist-u" id="fd-unit"></span><span class="fdist-hint" aria-hidden="true">⇕</span></button>
+    <button type="button" class="fdist-v" id="fd-btn" aria-label="Distance — tap to type, hold and drag to adjust"><span class="fdist-num"><span id="fd-val">—</span><span class="fdist-u" id="fd-unit"></span></span><span class="fdist-hint" aria-hidden="true">⇕</span></button>
     <div class="fdist-tip" id="fd-tip">Hold and drag: ← → ±1 · ↑ ↓ ±10</div>
     <div class="fdist-row"><button type="button" class="fdist-sub" id="fd-angle" onclick="openAngleSheet()">Angle 0°</button><button type="button" class="fdist-sub" id="fd-wind" onclick="pickSheet('wind')">Wind —</button></div>
+  </div>
+  <!-- SANDBOX r2 — device row: tap pauses that kind of sensor, hold opens its devices -->
+  <div class="fdev mod-off" id="home-devices">
+    <button type="button" class="fpill" id="dev-wx" data-dev="wx"><span class="fpill-n">Weather</span><span class="fpill-v" id="dev-wx-v">—</span></button>
+    <button type="button" class="fpill" id="dev-rf" data-dev="rf"><span class="fpill-n">Range</span><span class="fpill-v" id="dev-rf-v">—</span></button>
+    <button type="button" class="fpill" id="dev-ch" data-dev="ch"><span class="fpill-n">Chrono</span><span class="fpill-v" id="dev-ch-v">—</span></button>
   </div>
   <div class="dash" id="home-dash">
     <div class="dash-reticle">
@@ -1012,7 +1044,7 @@ details.disc .dbody{padding:0 14px 14px}
 <!-- ═══════════ SETTINGS (D3) ═══════════ -->
 <div class="page" id="page-settings">
   <div id="settings-body"></div>
-  <div class="note">SEN Sandbox V2.10.0-r1 · UI fork of SEN Ballistics V2.10.0 (physics unchanged) · RTI Mora Sniper · RK4 G7/G1 · single-file PWA · github.com/SprukK/SEN-sandbox</div>
+  <div class="note">SEN Sandbox V2.10.0-r2 · UI fork of SEN Ballistics V2.10.0 (physics unchanged) · RTI Mora Sniper · RK4 G7/G1 · single-file PWA · github.com/SprukK/SEN-sandbox</div>
 </div>
 
 <!-- profile modals -->
@@ -2403,8 +2435,8 @@ function renderActBar(){
 const MORE_PAGES=[['stab','Stability','Berger Sg · twist'],['bench','Design Bench','geometry · mass · SD'],['truing','BC / Truing','BC, SD, MV–temp'],
   ['holds','Holds','reticle holdover'],['profiles','Profiles','rifles, scopes, ammo'],
   ['sensors','Sensors','Calypso · chrono'],['layouts','Layouts','Home per match type'],['formulas','Formulas','§20A self-check'],['settings','Settings','units, display, field']];
-function openSheet(html){document.getElementById('sbox').innerHTML='<div class="sgrab"></div>'+html;document.getElementById('sheet').classList.add('open');}
-function closeSheet(){document.getElementById('sheet').classList.remove('open');document.getElementById('sbox').innerHTML='';}
+function openSheet(html){const sb=document.getElementById('sbox');delete sb.dataset.dev;sb.innerHTML='<div class="sgrab"></div>'+html;document.getElementById('sheet').classList.add('open');backGuard();}
+function closeSheet(){document.getElementById('sheet').classList.remove('open');const b=document.getElementById('sbox');b.innerHTML='';delete b.dataset.dev;}
 function openMore(){
   const cur=document.querySelector('.page.active')?.id.replace('page-','')||'';
   openSheet('<h3>More</h3><div class="nav navsheet">'+MORE_PAGES.map(([id,name,sub])=>
@@ -2885,12 +2917,14 @@ function refreshSelects(){
 function gotoPage(p){
   const pg=document.getElementById('page-'+p);
   if(!pg)return;  // V1.17.1: unknown/undefined target is a no-op, never a thrown TypeError
+  const prevPg=(document.querySelector('.page.active')||{id:'page-home'}).id.slice(5);  // SANDBOX r2: back button
   document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));
   document.querySelectorAll('.nav button').forEach(e=>e.classList.toggle('on',e.dataset.page===p));
   // V1.17.0: pages that live behind More keep the More tab lit, so the bar never looks unselected
   const more=document.getElementById('nav-more');
   if(more)more.classList.toggle('on',MORE_PAGES.some(m=>m[0]===p));
   hdrPage(p);  // SANDBOX r1
+  navTrack(prevPg,p);  // SANDBOX r2
   window.scrollTo(0,0);
   pg.classList.add('active');
   if(twoPane)applyPane(p);   // V2.7.0 CORE-18
@@ -4374,7 +4408,7 @@ function rfFrame(d,b){
   if(!RFS.includes(d))return; // a listener left from an earlier connection of the same unit
   const r=rfParse(b);if(!r)return; // not a ranging frame — ignored
   d.last={m:r.m,deg:r.deg,t:Date.now()};d.n++;
-  if(APP.rfFill!==false)rfFill(d);
+  if(APP.rfFill!==false&&!d.paused)rfFill(d);   // SANDBOX r2: a paused rangefinder still shows its ranging, fills nothing
   rfRender();
 }
 // Write a ranging into the session: S.dist_m (all pages) and both shot-angle inputs (Home, Solver).
@@ -4412,6 +4446,7 @@ function rfRender(){
   const lastD=RFS.filter(d=>d.last).sort((a,b)=>b.last.t-a.last.t)[0];
   document.getElementById('rf-last').textContent=lastD?'Last ranging: '+rfDist(lastD.last.m)+' at '+(lastD.last.deg>0?'+':'')+lastD.last.deg+'° from '+(lastD.link.name||'rangefinder')+' · '+rfTime(lastD.last.t)+(APP.rfFill===false?' (not filled: switch is off)':''):'';
   rfSrcRender();
+  devSync();   // SANDBOX r2
 }
 // Source line under the distance/angle inputs on Home and the Solver: "from <unit>" while the session
 // still holds that ranging, "typed" once either value differs from it (§20E: source visible, override kept).
@@ -4498,6 +4533,7 @@ function lrRx(d,b){
 // (e.g. after a reconnect); a typed or imported string is replaced by a new LabRadar string (Clear starts over).
 function lrShot(d,v){
   d.last={v,t:Date.now()};
+  if(d.paused){lrRender();return;}   // SANDBOX r2: paused → shown, not added to the shot string
   let c=chClean(APP.chronoStr);
   if(!c||c.src!=='labradar')c={shots:[],off:[],name:'LabRadar '+(d.link.name||'')+(d.series!=null?' · series '+d.series:''),date:new Date().toISOString().slice(0,10),src:'labradar',unit:'ms'};
   if(c.shots.length>=CH_MAX){chMsg('Shot string full ('+CH_MAX+' shots): clear it to keep recording.');return;}
@@ -4523,6 +4559,7 @@ function lrRender(){
     /^refused/.test(d.key)?'The LabRadar refused the app key: no shots will arrive. Save a Lab log and send it over.':
     silent?'No reply from the LabRadar for '+Math.round((Date.now()-d.lastRx)/1000)+' s: link silent.':
     d.last?'Last shot '+uq('vel',d.last.v)+' · '+new Date(d.last.t).toTimeString().slice(0,8):d.key==='accepted'?'Ready: arm the LabRadar and shoot.':'Starting…');
+  devSync();   // SANDBOX r2
 }
 
 /* ═════ Calypso driver (V2.0.0: any number of units at once) ═════
@@ -4649,6 +4686,7 @@ function calRender(){
     row.append(dot,lab,info,bat,x);return row;}));
   const add=document.getElementById('cal-add');if(add)add.style.display=CALS.length?'':'none';
   calStatus();stnRender();stnLive();
+  devSync();   // SANDBOX r2
 }
 const lab2=q=>lab(q,UNITS[q]);
 function updateBleDisplay(){
@@ -4660,7 +4698,7 @@ function updateBleDisplay(){
   if(ctr){const age=(Date.now()-bleLastWu)/1000;ctr.textContent=bleLastWu?(age<3?'live':'signal lost ('+age.toFixed(0)+'s)'):'awaiting wind…';}
   wavgRender();calRender();
   // Live mode → push avg wind into the session (avg is stable; instant shown above)
-  if(windMode==='live'||homeLive){
+  if((windMode==='live'||homeLive)&&!(calPrimary()&&calPrimary().paused)){   // SANDBOX r2: a paused session unit holds its last wind
     // home-live uses the chosen source (avg/instant); wind-tab live uses avg
     calypsoLive(homeLive&&windMode!=='live'?homeWindSrc:'avg');
     if(windMode==='live'){const sp=document.getElementById('wd-spd'),di=document.getElementById('wd-dir');if(sp)sp.value=bleAvgNow().s.toFixed(1);if(di)di.value=S.wind.dir;}
@@ -4842,6 +4880,7 @@ const HOME_MODS={
   summary:{el:'home-summary',name:'Session summary (one line)'},     // SANDBOX r1
   answer:{el:'home-answer',name:'Answer — elevation / windage clicks'}, // SANDBOX r1
   distance:{el:'home-distance',name:'Distance — tap to type, hold and drag'}, // SANDBOX r1
+  devices:{el:'home-devices',name:'Devices — Weather · Range · Chrono'},     // SANDBOX r2
   rail:{el:'home-rail-panel',name:'Adjustable rail budget'},
   turret:{el:'home-turret-panel',name:'Turret dialled'},
   live:{el:'home-livebar',name:'Calypso live wind'},
@@ -4857,13 +4896,13 @@ const HOME_MODS={
   course:{el:'home-course',name:'Course runner (stage · targets · calls)'}
 };
 const LAYOUT_TPL={
-  default:{name:'Default',on:['solution','rail','turret','live','bearing','manwind','cond','inputs'],set:{dist:null,timerMin:20,shots:25}},
+  default:{name:'Classic',on:['solution','rail','turret','live','bearing','manwind','cond','inputs'],set:{dist:null,timerMin:20,shots:25}},
   br50:{name:'Benchrest 50 m',on:['solution','windoff','windtable','chrono','timer','live','manwind','cond','inputs'],set:{dist:50,timerMin:20,shots:25}},
   br100:{name:'Benchrest 100 m',on:['solution','windoff','windtable','chrono','timer','live','manwind','cond','inputs'],set:{dist:100,timerMin:20,shots:25}},
   prs:{name:'PRS',on:['course','solution','turret','live','bearing','cond','inputs'],set:{dist:null,timerMin:20,shots:25}},
   bigbore:{name:'Big bore',on:['course','solution','turret','live','cond','inputs'],set:{dist:null,timerMin:20,shots:25}},
   blank:{name:'New layout',on:['solution','inputs'],set:{dist:null,timerMin:20,shots:25}},
-  field:{name:'Field',on:['summary','answer','distance','solution','turret'],set:{dist:null,timerMin:20,shots:25}}  // SANDBOX r1
+  field:{name:'Field',on:['summary','answer','distance','devices','solution','turret'],set:{dist:null,timerMin:20,shots:25}}  // SANDBOX r1
 };
 function layoutFromTpl(t,name){
   const T=LAYOUT_TPL[t]||LAYOUT_TPL.default;
@@ -4881,8 +4920,17 @@ function normLayout(L){
 function initLayouts(){
   if(!Array.isArray(APP.layouts)||!APP.layouts.length)APP.layouts=['default','br50','br100','prs','bigbore'].map(t=>layoutFromTpl(t));
   APP.layouts=APP.layouts.map(normLayout);
-  // SANDBOX r1: offer the Field layout once (fresh installs and data imported from Main), at the end of the list
-  if(!APP.fieldSeeded){if(!APP.layouts.some(l=>l.tpl==='field'))APP.layouts.push(layoutFromTpl('field'));APP.fieldSeeded=true;}
+  // SANDBOX r2: Field is the default layout — first in the list and in use; the pre-r1 Home is "Classic".
+  // Runs once per store (fresh installs and data imported from Main, which carries no flag).
+  if(!APP.fieldDefault){
+    let F=APP.layouts.find(l=>l.tpl==='field');
+    if(F)APP.layouts=APP.layouts.filter(l=>l!==F);else F=layoutFromTpl('field');
+    APP.layouts.unshift(F);
+    APP.layouts.forEach(l=>{if(l.tpl==='default'&&l.name==='Default')l.name='Classic';});
+    APP.layoutId=F.id;APP.fieldDefault=true;
+    // a Field layout from r1 gets the device row, right under Distance
+    if(F.tpl==='field'&&!F.mods.some(m=>m.id==='devices'&&m.on)){F.mods=F.mods.filter(m=>m.id!=='devices');const i=F.mods.findIndex(m=>m.id==='distance');F.mods.splice(i+1,0,{id:'devices',on:true});}
+  }
   if(!APP.layouts.some(l=>l.id===APP.layoutId))APP.layoutId=APP.layouts[0].id;
 }
 const activeLayout=()=>Array.isArray(APP.layouts)?(APP.layouts.find(l=>l.id===APP.layoutId)||APP.layouts[0]||null):null;
@@ -4926,19 +4974,25 @@ function senGesture(el,{tap,hold,drag,end}){
   el.addEventListener('contextmenu',e=>e.preventDefault());           // no Android long-press menu
   el.addEventListener('pointerdown',e=>{
     if(e.button>0)return;
-    st={id:e.pointerId,x:e.clientX,y:e.clientY,held:false,moved:false};
+    st={id:e.pointerId,x:e.clientX,y:e.clientY,held:false,moved:false};el.classList.add('pressing');
     try{el.setPointerCapture(e.pointerId);}catch(err){}
     st.timer=setTimeout(()=>{if(!st||st.moved)return;st.held=true;buzz(15);if(hold)hold(st);},HOLD_MS);
   });
   el.addEventListener('pointermove',e=>{
     if(!st||e.pointerId!==st.id)return;
-    if(!st.held){if(Math.hypot(e.clientX-st.x,e.clientY-st.y)>TAP_SLOP){st.moved=true;clearTimeout(st.timer);}return;}
+    if(!st.held){if(Math.hypot(e.clientX-st.x,e.clientY-st.y)>TAP_SLOP){st.moved=true;clearTimeout(st.timer);el.classList.remove('pressing');}return;}
     e.preventDefault();if(drag)drag(e,st);
   });
   const finish=(e,cancel)=>{
     if(!st||e.pointerId!==st.id)return;
-    clearTimeout(st.timer);const s0=st;st=null;
-    if(s0.held){if(end)end(s0,cancel);}
+    clearTimeout(st.timer);const s0=st;st=null;el.classList.remove('pressing');
+    if(s0.held){
+      // the click Chrome sends after a long press would land on whatever end() opened (a sheet's
+      // backdrop) and close it again: swallow that one click
+      const eat=ev=>{ev.stopPropagation();ev.preventDefault();document.removeEventListener('click',eat,true);};
+      document.addEventListener('click',eat,true);setTimeout(()=>document.removeEventListener('click',eat,true),300);
+      if(end)end(s0,cancel);
+    }
     el._tapArmed=!s0.held&&!s0.moved&&!cancel;
   };
   el.addEventListener('pointerup',e=>finish(e,false));
@@ -5024,6 +5078,132 @@ function openSummarySheet(){
   });
   document.getElementById('sbox').appendChild(list);
 }
+/* SANDBOX r2 — Android back button. An installed PWA has no history of its own, so the first back
+   press used to close the app. One "guard" history entry sits above the start entry; back pops it
+   and the app decides: close the open sheet → previous page → Home → (on Home) a "press back
+   again" toast without a new guard, so the second press closes the app as Android expects. */
+let backGuarded=false,backFromPop=false,backExitTimer=0;const pageStack=[];
+function backGuard(){if(backGuarded||typeof history==='undefined'||!history.pushState)return;try{history.pushState({sen:'guard'},'');backGuarded=true;}catch(e){}}
+function navTrack(from,to){if(backFromPop||from===to)return;pageStack.push(from);if(pageStack.length>30)pageStack.shift();backGuard();}
+function senToast(msg){
+  let t=document.getElementById('sen-toast');
+  if(!t){t=document.createElement('div');t.id='sen-toast';t.className='sen-toast';t.setAttribute('role','status');document.body.appendChild(t);}
+  t.textContent=msg;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('on'),2000);
+}
+function onBack(){
+  backGuarded=false;
+  const go=p=>{backFromPop=true;gotoPage(p);backFromPop=false;};
+  if(document.getElementById('sheet').classList.contains('open')){closeSheet();backGuard();return;}
+  let prev=pageStack.pop();while(prev&&prev===curPage())prev=pageStack.pop();
+  if(prev){go(prev);backGuard();return;}
+  if(curPage()!=='home'){go('home');backGuard();return;}
+  senToast('Press back again to close');   // no new guard: the next back press leaves the app
+  clearTimeout(backExitTimer);backExitTimer=setTimeout(backGuard,2000);  // not pressed again → stay guarded
+}
+function backInit(){
+  if(typeof history==='undefined'||!history.replaceState)return;
+  try{history.replaceState({sen:'start'},'');}catch(e){}
+  window.addEventListener('popstate',onBack);backGuard();
+}
+// SANDBOX r2 — keep sheets above Android's on-screen keyboard: --kb = the part of the window it covers
+function kbInit(){
+  const vv=window.visualViewport;if(!vv)return;
+  const upd=()=>{const kb=Math.max(0,Math.round(window.innerHeight-vv.height-vv.offsetTop));document.documentElement.style.setProperty('--kb',kb+'px');};
+  vv.addEventListener('resize',upd);vv.addEventListener('scroll',upd);upd();
+}
+
+/* ═════════ SANDBOX r2 — device row: Weather · Range · Chrono ═════════
+   Tap = pause / resume that kind of sensor (opens its popup when nothing is connected); hold =
+   popup listing its devices, each pausable on its own, with connect and setup links. Pause-all
+   reuses Main's switches (Home live wind, rangefinder fill); a paused unit only holds its readings
+   back (stations drop it like a stale unit, the rangefinder fills nothing, the LabRadar adds no
+   shot). Nothing new reaches the solver; session MV changes only with "Use MV → session". */
+const calOn=()=>CALS.filter(d=>d.link.connected());
+const rfOn=()=>RFS.filter(d=>!d.gone&&d.link.connected());
+const lrOn=()=>LR&&!LR.gone&&LR.link.connected()?[LR]:[];
+const wxFeeding=()=>homeLive&&S.wind.source==='calypso'&&!!calPrimary()&&!calPrimary().paused;
+function devState(k){
+  if(k==='wx'){const on=calOn();if(!on.length)return{st:'off'};const live=on.filter(d=>!d.paused).length;
+    return{st:wxFeeding()?'live':'man',val:wxFeeding()?ut('wind',S.wind.speed):'MAN',count:on.length>1?live+'/'+on.length:''};}
+  if(k==='rf'){const on=rfOn();if(!on.length)return{st:'off'};const feed=APP.rfFill!==false&&on.some(d=>!d.paused);
+    const L=on.filter(d=>d.last).sort((a,b)=>b.last.t-a.last.t)[0];
+    return{st:feed?'live':'man',val:feed?(L?rfDist(L.last.m):'ready'):'MAN',count:on.length>1?on.filter(d=>!d.paused).length+'/'+on.length:''};}
+  const on=lrOn();if(!on.length)return{st:'off'};const d=on[0];
+  return{st:d.paused?'man':'live',val:d.paused?'MAN':d.last?ut('vel',d.last.v):'ready',count:''};
+}
+function devSync(){
+  ['wx','rf','ch'].forEach(k=>{
+    const b=document.getElementById('dev-'+k);if(!b)return;const s0=devState(k);
+    b.classList.toggle('live',s0.st==='live');b.classList.toggle('man',s0.st==='man');
+    const v=document.getElementById('dev-'+k+'-v');if(v)v.textContent=s0.st==='off'?'connect':s0.val+(s0.count?' · '+s0.count:'');
+  });
+  // an open popup follows the readings, at most every 1.5 s and never right after a touch in it (a tap must not lose its button)
+  const sh=document.getElementById('sbox'),now=Date.now();
+  if(sh&&sh.dataset.dev&&document.getElementById('sheet').classList.contains('open')&&now-(sh._down||0)>800&&now-(devSheet._t||0)>1500)devSheet(sh.dataset.dev);
+}
+// pause / resume everything of one kind
+function devToggle(k){
+  const s0=devState(k);if(s0.st==='off'){devSheet(k);return;}
+  if(k==='wx'){
+    if(s0.st==='live'){if(homeLive)toggleHomeLive();Bus.setWind(S.wind.speed,S.wind.dir,'manual');}   // keep the last wind as manual
+    else{CALS.forEach(d=>{d.paused=false;});if(!homeLive)toggleHomeLive();else if(bleLastWu)calypsoLive(homeWindSrc);}
+  }else if(k==='rf'){
+    if(s0.st==='live')rfSetFill(false);else{RFS.forEach(d=>{d.paused=false;});rfSetFill(true);}
+  }else{LR.paused=s0.st==='live';lrRender();}
+  buzz(10);devSync();renderQuick();
+}
+// one device
+function devPause(k,d,pause){
+  d.paused=pause;
+  if(k==='wx'){
+    if(d===calPrimary()){if(pause)Bus.setWind(S.wind.speed,S.wind.dir,'manual');else if(homeLive&&d.lastWu)calypsoLive(homeWindSrc);}
+    stnLive();
+  }else if(k==='rf'&&!pause&&APP.rfFill===false)rfSetFill(true);
+  devSync();renderQuick();
+}
+function devGo(page,panelId){closeSheet();gotoPage(page);const e=document.getElementById(panelId);if(e)setTimeout(()=>e.scrollIntoView({block:'start'}),60);}
+function devSheet(k){
+  const el=(t,cls,txt)=>{const e=document.createElement(t);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e;};
+  const btn=(txt,fn,cls)=>{const b=el('button',cls||'btn',txt);b.type='button';b.onclick=fn;return b;};
+  const box=document.getElementById('sbox');
+  if(!document.getElementById('sheet').classList.contains('open')||box.dataset.dev!==k){openSheet('');}
+  box.dataset.dev=k;devSheet._t=Date.now();
+  const title={wx:'Weather sensors',rf:'Rangefinders',ch:'Chronographs'}[k];
+  const list=k==='wx'?calOn():k==='rf'?rfOn():lrOn();
+  const rows=el('div','flist devlist');
+  const row=(d,name,info,tag)=>{const r=el('div','devrow');const t=el('div','devrow-t');t.append(el('b',null,name),el('span','devrow-i',info));
+    if(tag)t.appendChild(el('span','devrow-tag',tag));
+    r.append(t,btn(d.paused?'Resume':'Pause',()=>devPause(k,d,!d.paused),'btn'+(d.paused?' primary':'')));return r;};
+  list.forEach(d=>{
+    if(k==='wx'){const w=calReading(d,homeWindSrc),nick=stnNick(d.link.name),nm=d.link.name||'Calypso';rows.appendChild(row(d,nick?nick+' · '+nm:nm,
+      (d.paused?'paused · ':'')+(d.lastWu?ut('wind',w.s)+' from '+Math.round(w.d)+'°':d.locked?'locked':'activating…')+(d.batt!=null?' · '+d.batt+'%':''),d===calPrimary()?'feeds session':(stnRange()?'station':'')));}
+    else if(k==='rf')rows.appendChild(row(d,d.link.name||'Rangefinder',(d.paused?'paused · ':'')+(d.last?rfDist(d.last.m)+' · '+(d.last.deg>0?'+':'')+d.last.deg+'° · '+rfAge(d.last.t):'waiting for a ranging…'),''));
+    else rows.appendChild(row(d,d.link.name||'LabRadar',(d.paused?'paused · ':'')+(d.last?'last '+ut('vel',d.last.v):'no shot yet')+(d.armed?' · armed':''),''));
+  });
+  const kids=[el('h3',null,title)];
+  if(!list.length)kids.push(el('div','note','Nothing connected.'));else kids.push(rows);
+  if(k==='wx'&&list.length&&!homeLive)kids.push(el('div','note','Live wind is off — tap the Weather pill to resume.'));
+  if(k==='rf'&&list.length&&APP.rfFill===false)kids.push(el('div','note','Filling is off — tap the Range pill to resume.'));
+  if(k==='ch'){
+    const c=chClean(APP.chronoStr),st=c&&chStats(chKept(c));   // the same string stats as Sensors
+    kids.push(el('div','devstr',st?'Shot string: '+st.n+' shots · MV '+ut('vel',st.mean)+' · ES '+ut('vel',st.es)+(st.sd!=null?' · SD '+ut('vel',st.sd):''):'No shot string yet.'));
+    if(st)kids.push(btn('Use MV → session',()=>{chUse();closeSheet();},'btn primary'));   // Main's own "use the string" path
+  }
+  const acts=el('div','btnrow');
+  if(k==='wx'){acts.append(btn(list.length?'+ Connect another':'Connect Calypso',async()=>{closeSheet();await calAdd();if(calOn().length&&!homeLive)toggleHomeLive();devSync();}),
+    btn('Station setup',()=>devGo('sensors','stn-panel')));}
+  else if(k==='rf')acts.append(btn(list.length?'+ Connect another':'Connect rangefinder',async()=>{closeSheet();await rfAdd();if(APP.rfFill===false)rfSetFill(true);devSync();}));
+  else{if(!list.length)acts.append(btn('Connect LabRadar',async()=>{closeSheet();await lrConnect();devSync();}));
+    acts.append(btn('Shot string · Xero import',()=>devGo('sensors','ch-str')));}
+  kids.push(acts);
+  box.replaceChildren(el('div','sgrab'),...kids);
+}
+function devInit(){
+  const sb=document.getElementById('sbox');if(sb&&!sb._dg){sb._dg=true;sb.addEventListener('pointerdown',()=>{sb._down=Date.now();});}
+  ['wx','rf','ch'].forEach(k=>{const b=document.getElementById('dev-'+k);if(!b||b._g)return;b._g=true;
+    senGesture(b,{tap:()=>devToggle(k),end:(st,cancel)=>{if(!cancel)devSheet(k);}});});
+  devSync();
+}
 const PAGE_NAMES={home:'Home',traj:'Trajectory',solver:'Solver',wind:'Wind',dope:'Dope'};
 function hdrPage(p){const e=document.getElementById('hdr-page');if(e)e.textContent=PAGE_NAMES[p]||(MORE_PAGES.find(m=>m[0]===p)||[])[1]||'';}
 function fieldSync(statusMsg){
@@ -5048,6 +5228,7 @@ function fieldInit(){
   const b=document.getElementById('fd-btn');
   if(b&&!b._g){b._g=true;senGesture(b,{tap:()=>pickSheet('dist'),hold:fdHold,drag:fdDrag,end:fdEnd});}
   hdrPage(curPage());fieldSync();
+  if(!fieldInit._done){fieldInit._done=true;backInit();kbInit();devInit();}   // SANDBOX r2
 }
 
 /* ── benchrest modules ── */
@@ -5660,7 +5841,7 @@ function stnState(D,shotBrg){
   const rows=r.stations.map(t=>{
     const d=calByName(t.unit),age=d&&d.lastWu?(Date.now()-d.lastWu)/1000:null,ok=t.dist!=null&&t.dist>=0;
     const m=!ok?null:t.mount==='north'?(b==null?null:norm360(-b)):norm360(stnMarkRel(t,S.dist_m,base)-turn);
-    const why=!t.unit?'no Calypso chosen':!ok?'no distance':!d?'not connected':d.locked?'locked':age==null?'waiting for wind':age>STN_STALE_S?'signal lost':m==null?'needs the target bearing (Home)':null;
+    const why=!t.unit?'no Calypso chosen':!ok?'no distance':!d?'not connected':d.locked?'locked':d.paused?'paused':age==null?'waiting for wind':age>STN_STALE_S?'signal lost':m==null?'needs the target bearing (Home)':null;
     if(why)return{t,why};
     const win=stnWin(t),w=calReading(d,homeWindSrc,win);
     return{t,why:null,x:stnPos({dist:t.dist,ang:(+t.ang||0)-turn}).x,s:w.s,d:w.d,win,...stnComponents(w.s,w.d,m)};
