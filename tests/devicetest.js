@@ -124,7 +124,7 @@ w.eval(`openSummarySheet()`);await back();
 chk('back closes an open sheet, adds no guard',!sheetOpen()&&w.eval('curPage()')==='home'&&w.eval('_push')===3&&w.eval('backDepth')===2);
 await gesture();chk('the next tap tops the guards up again',w.eval('_push')===4&&w.eval('backDepth')===3);
 w.eval(`gotoPage('traj');gotoPage('settings')`);await back();
-chk('back returns to the previous page (Settings → Trajectory)',w.eval('curPage()')==='traj'&&$('hdr-page').textContent==='Trajectory');
+chk('back returns to the previous page (Settings → Trajectory)',w.eval('curPage()')==='traj'&&$('hdr-page').textContent==='Advanced · Trajectory');
 await back();chk('…then Home',w.eval('curPage()')==='home');
 await back();
 chk('back on Home: "Press back again to close", all guards used, nothing pushed',/Press back again/.test($('sen-toast').textContent)&&$('sen-toast').classList.contains('on')&&w.eval('backDepth')===0&&w.eval('_push')===4&&w.eval('_go.length')===0);

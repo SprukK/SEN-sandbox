@@ -169,7 +169,7 @@ chk('angle sheet sets Home angle 20°, answer re-solved',$(w,'home-angle').value
 
 // 8. Header, layout sheet, text only, no errors
 w.eval(`gotoPage('traj')`);const h1=txt(w,'hdr-page');w.eval(`gotoPage('settings')`);const h2=txt(w,'hdr-page');w.eval(`gotoPage('home')`);
-chk('header shows the page name (Trajectory, Settings, Home)',h1==='Trajectory'&&h2==='Settings'&&txt(w,'hdr-page')==='Home');
+chk('header shows the page name (Trajectory, Settings, Home)',h1==='Advanced · Trajectory'&&h2==='Settings'&&txt(w,'hdr-page')==='Home');
 w.eval('openLayoutSheet()');const on=w.document.querySelector('#sbox .navsheet button.on'),cs=w.getComputedStyle(on);
 chk('layout sheet: active layout readable (text colour ≠ background)',on.textContent==='Field'&&cs.color!==cs.backgroundColor,cs.color+' on '+cs.backgroundColor);
 w.eval('closeSheet()');

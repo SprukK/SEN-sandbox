@@ -5,6 +5,23 @@ Versions: `V{Main base}-r{n}`. Deploy set per release: `RTI-SEN-Ballistic-Calcul
 
 ---
 
+## V2.10.0-r6 — Advanced tab: Trajectory + Shot solver as sub-tabs
+
+**Problem.** UI review item 3 / owner request 2026-11-04: Trajectory and Solver took two of six bottom-bar slots. Owner rule: join them into one "Advanced" tab, as sub-tabs if they are separate tools.
+
+**Ruling (Claude, per the owner's rule): sub-tabs, not one page.** They answer different questions — Trajectory is the setup plus the whole-range chart and drop table; the Solver is one shot in detail (turret travel used, cant, wind source / stations, Coriolis, spin drift, aerodynamic jump). Merged they would be ~3,600 px on the outer screen, each burying the other's top.
+
+**Change.**
+- Bottom bar: **Home · Advanced · Wind · Dope · More** (five tabs, 76 px each on the outer screen, was six).
+- **Advanced** opens the sub-tab used last (remembered), stays lit on both; a sticky two-button bar at the top of both pages: **Trajectory | Shot solver**. Header "Advanced · Trajectory" / "Advanced · Shot solver". Back walks between them like pages.
+- The two pages are unchanged inside; every `gotoPage('traj' | 'solver')` and the two-pane rail still work.
+
+**Files.** `index.html`, `RTI-SEN-Ballistic-Calculator-V2.10.0-r6-redesign.html` (identical), `sw.js` (CACHE `sen-sandbox-v2.10.0-r6`), `tests/domtest.js` (bar = Home · Wind · Dope with pages + Advanced check — intended UI change), `tests/fieldtest.js`, `tests/devicetest.js` (header names).
+
+**Verify.** All 31 Main suites + `fieldtest` 43 + `devicetest` 41 + `typetest` 18 + `helptest` 22 green; `runtests.js` unchanged 143/143. Chromium touch at 412 / 780 px: Advanced → Trajectory, sub-tab → Shot solver, back → Trajectory, sub-tab bar sticky while scrolling, no sideways scroll, no errors.
+
+---
+
 ## V2.10.0-r5 — Help text behind ⓘ; unit presets
 
 **Problem.** UI review items 6 and 9: every panel explained itself in full, always (Sensors 444 words of notes, Solver 133, Stability 157), and Settings spent ~2,600 px on primary + secondary toggle rows for 15 quantities.
