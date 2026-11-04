@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0a0b0e">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
-<title>SEN Sandbox V2.10.0-r3</title>
+<title>SEN Sandbox V2.10.0-r4</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Archivo:wght@500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
@@ -380,6 +380,54 @@ details.disc .dbody{padding:0 14px 14px}
   .pd td{border:.5pt solid #000;padding:1.5mm;text-align:center}
   .pd .sh{font-weight:bold;background:#eee;padding:1mm 1.5mm;margin-top:2mm;font-size:7.5pt}
 }
+
+/* ═════════ SANDBOX r4 — type scale + tap targets (UI review 2026-11-03, items 4 and 5) ═════════
+   One layer at the end of the stylesheet: it overrides sizes only, never layout logic.
+   Type: labels ≥ 12 px in sentence case (sans), body notes 13 px, inputs 16 px (also stops a
+   phone zooming into a field), tables 12 px; monospace stays for numbers, inputs and tables.
+   Taps: buttons, inputs, selects and disclosure rows ≥ 48 px (Material 48 dp); the small "from
+   profile" source chips keep their look and get a larger invisible hit area. The Large / XL
+   text setting still scales all of it. --text3 lifted to ≥ 4.5 : 1 on the panel background. */
+:root{--text3:#948f84}
+html.hc{--text3:#c4c0b6}
+/* labels and small titles: sans, sentence case, ≥ 12 px */
+.fld label,.panel h2,.dsol-l,.actchip .k,.qsol .qt,.qcell .ql,.sc .sl,.outcard .ot,.tablebox .ct,.cond-cell .cl,.modgrp,
+html.fold .rail-head,.stage-num{font-family:var(--sans);font-size:12.5px;text-transform:none;letter-spacing:.01em}
+.panel h2{font-size:14px;font-weight:600;color:var(--text2)}
+.fld label{font-size:13px;color:var(--text2);min-height:18px}
+.dsol-l,.cond-cell .cl,.sc .sl{font-size:13px}
+th{font-family:var(--sans);font-size:12px;text-transform:none}
+/* body text and notes */
+.note,.flag,.subnote,.modcard .md,.livebar,.reticle-cap,.devrow-tag,.sitem .sm,.navsheet button .nsub,.pitem .pm,.fx-st,.lay-tag,
+details.disc>summary .dsum{font-size:13px;line-height:1.5}
+.note,.flag,.modcard .md,.reticle-cap,.navsheet button .nsub{font-family:var(--sans)}
+.reticle-cap{max-width:none}
+.subnote{min-height:16px}
+/* values: mono, readable */
+.dsol-u,.qcell .qu,.sc .su,.chshot,.chstats,.chstats b,.cal-unit,.stn .stn-live,.actchip .v,.pitem .pn,.fx-name,.fx-eq{font-size:13px}
+.ret-size span{font-size:14px}
+table{font-size:12px}
+td{padding:7px 7px}
+/* inputs */
+input,select,textarea,.di{font-size:16px!important;min-height:48px}
+textarea{min-height:96px}
+/* buttons and taps */
+.btn,.seg button,.subnav button,.nav button,details.disc>summary,.sitem{min-height:48px}
+.btn,.seg button,.subnav button{font-family:var(--sans);font-size:14px}
+.btn-xs{min-height:48px;min-width:48px;padding:8px 14px;font-family:var(--sans);font-size:14px;display:inline-flex;align-items:center;justify-content:center}
+.navbar button,html.fold .navbar button{font-size:12px}
+.navbar button .ni{font-size:18px}
+.navsheet button{font-family:var(--sans);font-size:14px;min-height:56px}
+details.disc>summary{font-size:13px}
+.srcbtn{position:relative;font-family:var(--sans);font-size:12px;padding:3px 8px}
+.srcbtn::after{content:'';position:absolute;inset:-14px -8px}   /* invisible 44 px hit area, same look */
+.pacts,.lay-row>div:last-child{flex-wrap:wrap}
+.pacts{gap:6px;flex-shrink:1;justify-content:flex-end}
+html.fold #sol-rail,html.fold:not(.pane-none) #pane-div{bottom:calc(68px + env(safe-area-inset-bottom))}   /* the bottom nav grew with its 12 px labels: the rail ends above it */
+.pitem{flex-wrap:wrap}.pitem>:first-child{flex:1 1 140px;min-width:0}   /* row actions drop under the name when the row is narrow */
+.fx-nm,.fx-nm li{font-size:13px;line-height:1.5}
+.panel h2:has(> .btn-xs){display:flex;justify-content:space-between;align-items:center;gap:8px}
+.panel h2 > .btn-xs{float:none!important}   /* the taller + Add no longer floats into the list below it */
 </style>
 </head>
 <body>
@@ -818,7 +866,7 @@ details.disc .dbody{padding:0 14px 14px}
       <div class="fld"><label>Direction °</label><input type="number" id="wd-dir" step="5" value="90" oninput="syncClock();onWindInput()"></div>
       <div class="fld"><label>Crosswind factor</label><input type="number" id="wd-xf" step="0.01" value="1.00" readonly></div>
     </div>
-    <div style="margin-top:10px"><label style="font-family:var(--mono);font-size:9px;color:var(--text3);text-transform:uppercase">Clock angle</label>
+    <div style="margin-top:10px"><label style="font-size:13px;color:var(--text2)">Clock angle</label>
       <div class="seg" id="wd-clock" style="margin-top:6px">
         <button data-deg="90" class="on">3/9 full</button><button data-deg="60">2/10 ¾</button><button data-deg="30">1/11 ½</button><button data-deg="0">12/6 head/tail</button>
       </div>
@@ -833,7 +881,7 @@ details.disc .dbody{padding:0 14px 14px}
   <div class="outcard">
     <div class="ot"><span>Firing solution · <span id="sv-dist">—</span></span><span id="sv-zero-lbl"></span></div>
     <div class="scs" id="sv-outs"><div class="sc"><div class="sv" style="font-size:14px;color:var(--text3)">Run trajectory, then solve</div></div></div>
-    <div style="margin-top:10px"><label style="font-family:var(--mono);font-size:9px;color:var(--text3);text-transform:uppercase">Elevation travel used</label>
+    <div style="margin-top:10px"><label style="font-size:13px;color:var(--text2)">Elevation travel used</label>
       <div style="margin-top:6px;height:10px;background:var(--bg4);border-radius:5px;overflow:hidden"><div id="sv-travelbar" style="height:100%;width:0;transition:width .3s"></div></div>
       <div class="note" id="sv-travel-note"></div>
     </div>
@@ -942,7 +990,7 @@ details.disc .dbody{padding:0 14px 14px}
   <div class="panel">
     <h2>Calypso Mini AB · wind</h2>
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-      <span><span class="ble-dot" id="ble-dot"></span><span style="font-family:var(--mono);font-size:11px" id="ble-status-text">Disconnected</span></span>
+      <span><span class="ble-dot" id="ble-dot"></span><span style="font-size:13px" id="ble-status-text">Disconnected</span></span>
       <button class="btn-xs" id="ble-btn" onclick="toggleBLE()" style="margin-left:auto">Connect</button>
     </div>
     <div id="cal-units"></div>
@@ -988,7 +1036,7 @@ details.disc .dbody{padding:0 14px 14px}
   <div class="panel" id="rf-panel">
     <h2>Rangefinder · Element Titan / Helix</h2>
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-      <span><span class="ble-dot" id="rf-dot"></span><span style="font-family:var(--mono);font-size:11px" id="rf-status">Not connected</span></span>
+      <span><span class="ble-dot" id="rf-dot"></span><span style="font-size:13px" id="rf-status">Not connected</span></span>
       <button class="btn-xs" id="rf-btn" onclick="rfAdd()" style="margin-left:auto">Connect</button>
     </div>
     <div id="rf-units"></div>
@@ -1005,7 +1053,7 @@ details.disc .dbody{padding:0 14px 14px}
   <div class="panel" id="lr-panel">
     <h2>Chronograph · LabRadar LX (live)</h2>
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-      <span><span class="ble-dot" id="lr-dot"></span><span style="font-family:var(--mono);font-size:11px" id="lr-status">Not connected</span></span>
+      <span><span class="ble-dot" id="lr-dot"></span><span style="font-size:13px" id="lr-status">Not connected</span></span>
       <button class="btn-xs" id="lr-btn" onclick="lrToggle()" style="margin-left:auto">Connect</button>
     </div>
     <div class="scs">
@@ -1054,8 +1102,7 @@ details.disc .dbody{padding:0 14px 14px}
 <div class="page" id="page-settings">
   <div id="settings-body"></div>
   <div class="btnrow"><button class="btn" id="reload-btn" onclick="reloadApp()">Reload app</button></div>
-  <div class="note" id="back-diag">Back button: —</div>
-  <div class="note">SEN Sandbox V2.10.0-r3 · UI fork of SEN Ballistics V2.10.0 (physics unchanged) · RTI Mora Sniper · RK4 G7/G1 · single-file PWA · github.com/SprukK/SEN-sandbox</div>
+  <div class="note">SEN Sandbox V2.10.0-r4 · UI fork of SEN Ballistics V2.10.0 (physics unchanged) · RTI Mora Sniper · RK4 G7/G1 · single-file PWA · github.com/SprukK/SEN-sandbox</div>
 </div>
 
 <!-- profile modals -->
@@ -1812,9 +1859,9 @@ function renderSettings(){
   html+=Object.entries(QDEF).map(([k,d])=>{
     const prim=Object.entries(d.opts).map(([ok,ol])=>`<button class="${UNITS[k]===ok?'on':''}" ${d.locked?'disabled':''} onclick="setUnit('${k}','${ok}')">${ol}</button>`).join('');
     const secBtns=`<button class="${SUNITS[k]==='off'?'on':''}" onclick="setSec('${k}','off')">Off</button>`+Object.entries(d.opts).filter(([ok])=>ok!==UNITS[k]).map(([ok,ol])=>`<button class="${SUNITS[k]===ok?'on':''}" onclick="setSec('${k}','${ok}')">${ol}</button>`).join('');
-    return`<div style="margin-bottom:16px"><label style="font-family:var(--mono);font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.08em">${d.name}${d.locked?' · locked':''}</label>
+    return`<div style="margin-bottom:16px"><label style="font-size:13px;color:var(--text2)">${d.name}${d.locked?' · locked':''}</label>
       <div class="seg" style="margin-top:6px">${prim}</div>
-      ${d.locked?'':`<label style="font-family:var(--mono);font-size:8px;color:var(--text3);text-transform:uppercase;margin-top:6px;display:block">secondary</label><div class="seg" style="margin-top:4px">${secBtns}</div>`}</div>`;
+      ${d.locked?'':`<label style="font-size:12px;color:var(--text3);margin-top:6px;display:block">Secondary</label><div class="seg" style="margin-top:4px">${secBtns}</div>`}</div>`;
   }).join('')+`</div>`;
   // calc block
   html+=`<div class="panel"><h2>Calculation</h2>

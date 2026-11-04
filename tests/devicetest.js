@@ -133,7 +133,7 @@ chk('toast with spare guards left: they are dropped in one history.go(−2), so 
 await back();
 chk('…the popstate of that history.go is ignored (no toast loop, no page change)',w.eval('backDrain')===0&&w.eval('curPage()')==='home'&&w.eval('_go.length')===1);
 w.eval(`gotoPage('settings')`);
-chk('Settings shows the back-button diagnostic line',/^Back button: \d guards? · history \d+ · gesture .* · last: /.test($('back-diag').textContent),$('back-diag').textContent);
+chk('r4: the temporary back-button diagnostic is gone from Settings',!$('back-diag'));
 w.eval(`gotoPage('home')`);
 
 // 6b. Pull-to-refresh blocked only while a device is connected

@@ -5,6 +5,24 @@ Versions: `V{Main base}-r{n}`. Deploy set per release: `RTI-SEN-Ballistic-Calcul
 
 ---
 
+## V2.10.0-r4 — Type scale and 48 px tap targets
+
+**Problem.** UI review items 4 and 5: on the outer screen 1,218 of 1,323 visible texts were under 12 px (smallest 8 px, median 10 px, mostly spaced-out monospace capitals) and 281 of 296 controls were under 48 px tall (profile row actions 23 px, Settings toggles 36 px). Hard to read in sun and to hit with a cold thumb.
+
+**Change.** One CSS layer at the end of the stylesheet (sizes only), plus five inline styles that were out of its reach:
+- **Type.** Labels and small titles in sans, sentence case, 12.5–14 px; notes and flags 13 px with 1.5 line height; values 13 px mono; tables 12 px; inputs 16 px (stops a phone zooming into a field); bottom-nav labels 12 px. Monospace kept for numbers, inputs and tables. `--text3` (quiet text) lifted from #7a776e to #948f84 for ≥ 4.5 : 1 on the panels. Large / XL text still scale everything.
+- **Taps.** Buttons, inputs, selects, segment toggles and disclosure rows ≥ 48 px; More-sheet tiles 56 px. The small "from profile" source chips keep their look with an invisible ≥ 44 px hit area.
+- **Knock-on fixes.** Profile rows: actions drop under the name when narrow (no sideways scroll). Panel headers with "+ Add": flex row instead of a float the taller button pushed into the list. Inner screen: rail and divider end 68 px up, above the bottom nav that grew with its labels.
+- **Removed** the temporary back-button diagnostic in Settings (back confirmed on the Honor, 2026-11-04).
+
+**Measured** (all pages, session set; outer / inner): text under 12 px 1,218 → 0 / 1,313 → 0; controls under 48 px 281 → 8 / 317 → 8, the 8 being the source chips (hit area 51 px); inputs under 48 px 69 → 0; no sideways scroll; no errors.
+
+**Files.** `index.html`, `RTI-SEN-Ballistic-Calculator-V2.10.0-r4-redesign.html` (identical), `sw.js` (CACHE `sen-sandbox-v2.10.0-r4`), `tests/typetest.js` (new, 18 — real Chromium, every page at 412 / 780 px and with Large text; fails on Main V2.10.0 with 9 of 18), `tests/devicetest.js` (diagnostic gone), `tests/README.md`.
+
+**Verify.** All 31 Main suites + `fieldtest.js` 43 + `devicetest.js` 41 + `typetest.js` 18 green; `runtests.js` unchanged 143/143. **On the Honor (owner):** readability in daylight, whether anything now feels too big on the outer screen.
+
+---
+
 ## V2.10.0-r3 — Back button that works on Android; draggable pane divider; no pull-to-refresh with devices connected
 
 **Owner feedback on r2 (2026-11-03).** On the Honor the back button never showed the "press back again" toast; the inner-screen divider should be draggable; pull-to-refresh reloads the app and drops every Bluetooth link.
