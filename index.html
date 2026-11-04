@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0a0b0e">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
-<title>SEN Sandbox V2.10.0-r8</title>
+<title>SEN Sandbox V2.10.0-r9</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Archivo:wght@500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
@@ -185,9 +185,13 @@ body:has(#page-home.active):has(#home-summary:not(.mod-off)) #sesbar{display:non
 .dup-hide{display:none!important}
 /* SANDBOX r8 — layout editor grip, screen switch; bottom-bar picker */
 .lay-mod{display:flex;align-items:center;gap:6px}
-.lay-modname{flex:1;min-width:0;font-family:var(--sans);font-size:14px;line-height:1.3}
+.lay-mod .lay-modname{flex:1;min-width:0;font-family:var(--sans);font-size:14px;line-height:1.3}
 .lay-grip{min-width:44px;min-height:48px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--text3);font-size:20px;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
-.lay-mod.lay-drag{background:var(--bg4);border-radius:8px;box-shadow:0 0 0 1px var(--accent)}
+.lay-mods{position:relative}
+.lay-mod{will-change:transform}
+.lay-mod.lay-drag{position:relative;z-index:5;background:var(--bg4);border-radius:8px;border-color:var(--accent);box-shadow:0 10px 28px rgba(0,0,0,.55),0 0 0 1px var(--accent)}   /* r9: lifted while dragged */
+.lay-mod.lay-settle{box-shadow:0 0 0 1px var(--accent)}
+.lay-mod.lay-drag .lay-grip{color:var(--accent);border-color:var(--accent);cursor:grabbing}
 .lay-ro .lay-mod{opacity:.55}
 .lay-scrnote{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:6px 0 10px}.lay-scrnote .note{margin:0}
 #lay-screen{margin-top:12px}
@@ -1146,7 +1150,7 @@ html.help-all .help-btn{display:none}
 <div class="page" id="page-settings">
   <div id="settings-body"></div>
   <div class="btnrow"><button class="btn" id="reload-btn" onclick="reloadApp()">Reload app</button></div>
-  <div class="note">SEN Sandbox V2.10.0-r8 · UI fork of SEN Ballistics V2.10.0 (physics unchanged) · RTI Mora Sniper · RK4 G7/G1 · single-file PWA · github.com/SprukK/SEN-sandbox</div>
+  <div class="note">SEN Sandbox V2.10.0-r9 · UI fork of SEN Ballistics V2.10.0 (physics unchanged) · RTI Mora Sniper · RK4 G7/G1 · single-file PWA · github.com/SprukK/SEN-sandbox</div>
 </div>
 
 <!-- profile modals -->
@@ -5690,23 +5694,63 @@ function renderLayoutEditor(){
    (each row's centre decides), the new order is saved on release. ▲▼ stay for keyboard use. */
 let layEditScreen='outer';
 function layGrip(h,row,box,L,list){
-  // the finger is followed on the document: moving the row in the list would drop pointer capture on it
-  let id=null;
-  const move=e=>{
-    if(e.pointerId!==id)return;e.preventDefault();
+  /* SANDBOX r9 — animated drag. The held row lifts and follows the finger (translateY, no transition);
+     when it crosses another row's centre the list reorders and the rows that moved slide into place
+     (FLIP: measure, reorder, invert, play). On release the row settles into its slot. Near the top or
+     bottom of the screen the page scrolls. Positions are page coordinates (client + scroll), so the row
+     stays under the finger while the page scrolls. Reduced-motion: no slides. The finger is followed on
+     the document — moving the row in the list would drop pointer capture on it. */
+  const reduce=()=>typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const SLIDE='transform .18s cubic-bezier(.2,.8,.2,1)';
+  let id=null,startY=0,top0=0,lastY=0,raf=0;
+  const sy=()=>window.scrollY||0;
+  const topOf=el=>el.getBoundingClientRect().top+sy()-(el._ty||0);   // natural (untransformed) page top
+  const follow=()=>{   // the row follows the finger but stays inside the list
+    const t=topOf(row),bx=box.getBoundingClientRect(),lo=bx.top+sy(),hi=bx.bottom+sy()-row.offsetHeight;
+    const want=t+lastY+sy()-startY-(t-top0),top=hi>lo?Math.min(hi,Math.max(lo,want)):want,ty=top-t;
+    row._ty=ty;row.style.transform='translateY('+ty+'px) scale(1.02)';};
+  const place=clientY=>{
     const rows=[...box.children].filter(r=>r!==row);
-    const next=rows.find(r=>{const b=r.getBoundingClientRect();return e.clientY<b.top+b.height/2;});
-    if(next){if(row.nextElementSibling!==next)box.insertBefore(row,next);}else if(box.lastElementChild!==row)box.appendChild(row);
+    const next=rows.find(r=>{const b=r.getBoundingClientRect();return clientY<b.top-(r._ty||0)+b.height/2;});
+    const want=next||null,now=row.nextElementSibling;
+    if(want===now||(!want&&box.lastElementChild===row))return;
+    const before=new Map(rows.map(r=>[r,topOf(r)]));
+    if(want)box.insertBefore(row,want);else box.appendChild(row);
+    buzz(5);
+    if(reduce())return;
+    rows.forEach(r=>{const d=before.get(r)-topOf(r);if(!d)return;
+      r.style.transition='none';r.style.transform='translateY('+d+'px)';r._ty=d;
+      void r.offsetHeight;   // commit the inverted position, then play to 0
+      r.style.transition=SLIDE;r.style.transform='';r._ty=0;});
+  };
+  const edge=()=>{   // auto-scroll while the finger is near the top or bottom
+    raf=0;if(id===null)return;
+    const H=window.innerHeight||0,z=90,v=lastY<z?-(z-lastY)/6:lastY>H-z-70?(lastY-(H-z-70))/6:0;
+    if(v){window.scrollBy(0,Math.max(-18,Math.min(18,v)));place(lastY);follow();}
+    if(v&&typeof requestAnimationFrame==='function')raf=requestAnimationFrame(edge);
+  };
+  const move=e=>{
+    if(e.pointerId!==id)return;e.preventDefault();lastY=e.clientY;
+    place(e.clientY);follow();
+    if(!raf&&typeof requestAnimationFrame==='function')raf=requestAnimationFrame(edge);
   };
   const up=e=>{
-    if(e.pointerId!==id)return;id=null;row.classList.remove('lay-drag');
+    if(e.pointerId!==id)return;id=null;
+    if(raf&&typeof cancelAnimationFrame==='function')cancelAnimationFrame(raf);raf=0;
     document.removeEventListener('pointermove',move,true);document.removeEventListener('pointerup',up,true);document.removeEventListener('pointercancel',up,true);
-    const order=[...box.children].map(r=>r.dataset.mod),before=list.map(m=>m.id).join();
-    if(order.join()!==before){const by=Object.fromEntries(list.map(m=>[m.id,m]));list.splice(0,list.length,...order.map(k=>by[k]));layoutChanged(L);}
+    const done=()=>{row.classList.remove('lay-drag','lay-settle');row.style.transition='';row.style.transform='';row._ty=0;
+      const order=[...box.children].map(r=>r.dataset.mod),before=list.map(m=>m.id).join();
+      if(order.join()!==before){const by=Object.fromEntries(list.map(m=>[m.id,m]));list.splice(0,list.length,...order.map(k=>by[k]));layoutChanged(L);}};
+    if(reduce()||!row._ty){done();return;}
+    row.classList.add('lay-settle');row.style.transition=SLIDE+',box-shadow .18s';row.style.transform='translateY(0) scale(1)';row._ty=0;
+    let fired=false;const fin=()=>{if(fired)return;fired=true;done();};
+    row.addEventListener('transitionend',fin,{once:true});setTimeout(fin,240);   // timeout: no transitionend if nothing moved
   };
   h.addEventListener('contextmenu',e=>e.preventDefault());
   h.addEventListener('pointerdown',e=>{
-    if(e.button>0||id!==null)return;id=e.pointerId;row.classList.add('lay-drag');buzz(10);e.preventDefault();
+    if(e.button>0||id!==null)return;id=e.pointerId;e.preventDefault();
+    startY=e.clientY+sy();lastY=e.clientY;top0=topOf(row);row._ty=0;
+    row.style.transition='box-shadow .15s';row.classList.add('lay-drag');buzz(10);
     document.addEventListener('pointermove',move,{capture:true,passive:false});document.addEventListener('pointerup',up,true);document.addEventListener('pointercancel',up,true);
   });
 }

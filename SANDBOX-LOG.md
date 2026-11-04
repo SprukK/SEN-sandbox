@@ -5,6 +5,24 @@ Versions: `V{Main base}-r{n}`. Deploy set per release: `RTI-SEN-Ballistic-Calcul
 
 ---
 
+## V2.10.0-r9 — Animated module drag
+
+**Owner request (2026-11-04).** r8's drag reordered the list in jumps; make it animated.
+
+**Change.**
+- The held row **lifts** (slight scale, shadow, accent outline) and **follows the finger** smoothly, kept inside the list.
+- When it passes another row's centre, the rows it passes **slide** into their new places (FLIP: measure, reorder, invert, play; 0.18 s), with a short vibration per swap on Android.
+- On release the row **settles** into its slot, then the order is saved (as before).
+- **Auto-scroll**: near the top or bottom of the screen the page scrolls while the finger is held, so a module can travel the whole 18-row list; positions are page coordinates, so the row stays under the finger while scrolling.
+- Reduced-motion setting on the phone: no slides or settle, just the reorder.
+- Fix: editor module names now really in the sans font (r8's rule lost to an older one).
+
+**Files.** `index.html`, `RTI-SEN-Ballistic-Calculator-V2.10.0-r9-redesign.html` (identical), `sw.js` (CACHE `sen-sandbox-v2.10.0-r9`), `tests/customtest.js` (26: + lift / slide / settle states; waits for the settle).
+
+**Verify.** All suites green; `runtests.js` 143/143. Chromium touch 412 px: a row from position 9 dragged up with auto-scroll (page 1198 → 873 px) to the top, list reorders with slides, order saved, no transforms left behind, no sideways scroll, no errors.
+
+---
+
 ## V2.10.0-r8 — Customisation: bottom bar, drag to reorder, inner-screen order
 
 **Problem.** UI review item 10 and CORE-16's open points ("not yet: separate outer/inner module orders, drag-and-drop"): only ▲▼ to order Home, one order for both screens, and a fixed bottom bar.

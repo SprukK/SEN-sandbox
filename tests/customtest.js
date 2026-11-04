@@ -65,7 +65,10 @@ rows().forEach((r,i)=>{r.getBoundingClientRect=()=>({top:100+56*[...r.parentNode
 const order0=J('activeLayout().mods.map(m=>m.id)');
 const grip=rows().find(r=>r.dataset.mod==='devices').querySelector('.lay-grip');
 const pe=(el,type,y)=>{const e=new w.MouseEvent(type,{bubbles:true,cancelable:true,clientX:20,clientY:y,button:0});Object.defineProperty(e,'pointerId',{value:3});el.dispatchEvent(e);};
-pe(grip,'pointerdown',100+56*3+28);pe(grip,'pointermove',100+56*1+10);pe(grip,'pointermove',100+10);pe(grip,'pointerup',110);await wait(20);
+pe(grip,'pointerdown',100+56*3+28);pe(grip,'pointermove',100+56*1+10);pe(grip,'pointermove',100+10);
+const lifted=rows().find(r=>r.dataset.mod==='devices').classList.contains('lay-drag'),slid=rows().filter(r=>r.dataset.mod!=='devices').some(r=>r.style.transition.includes('transform'));
+pe(grip,'pointerup',110);await wait(20);const settling=rows().find(r=>r.dataset.mod==='devices').classList.contains('lay-settle');await wait(300);
+chk('r9 animation: the held row lifts, the rows it passes slide, it settles on release',lifted&&slid&&settling,[lifted,slid,settling].join());
 const order1=J('activeLayout().mods.map(m=>m.id)');
 chk('drag Devices by its grip to the top → saved first',order1[0]==='devices'&&order1.slice(1).join()===order0.filter(x=>x!=='devices').join(),order1.slice(0,5).join());
 const vis=()=>[...$('page-home').children].filter(e=>e.id&&!e.classList.contains('mod-off')&&!['home-layout-bar','home-setup'].includes(e.id)).map(e=>e.id);
