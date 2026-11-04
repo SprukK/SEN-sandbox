@@ -5,6 +5,22 @@ Versions: `V{Main base}-r{n}`. Deploy set per release: `RTI-SEN-Ballistic-Calcul
 
 ---
 
+## V2.10.0-r8 — Customisation: bottom bar, drag to reorder, inner-screen order
+
+**Problem.** UI review item 10 and CORE-16's open points ("not yet: separate outer/inner module orders, drag-and-drop"): only ▲▼ to order Home, one order for both screens, and a fixed bottom bar.
+
+**Change.**
+- **Bottom bar** — Settings → Bottom bar: Home always first, More always last, three slots for any page (Advanced, Wind, Dope, Stability, Bench, Truing, Holds, Profiles, Sensors, Layouts, Formulas, Settings). Choosing a page already on the bar swaps the two; "—" empties a slot; **Default bar** restores Home · Advanced · Wind · Dope. Pages off the bar move into the More sheet and light More (Advanced from the sheet reopens its last sub-tab). Stored as `APP.navTabs`, normalised on load.
+- **Drag to reorder** — each module row in the layout editor has a ⠿ grip: drag it, the list reorders live, the order is saved on release (▲▼ kept for keyboard use). The finger is followed on the document, since moving the row drops pointer capture.
+- **Inner-screen order** — the editor has *Outer screen | Inner screen*. The inner screen follows the outer order (rows read-only) until **Give the inner screen its own order** copies it; then its order and on/off are its own, used only while two-pane, and the app switches between the two on fold / unfold. **Same as outer screen** drops it. Stored as an optional `modsInner` on the layout, sanitised like `mods`.
+- Editor module names in sans, 14 px; "Reticle + elevation / windage …" shortened to "Reticle (+ clicks when Answer is off)".
+
+**Files.** `index.html`, `RTI-SEN-Ballistic-Calculator-V2.10.0-r8-redesign.html` (identical), `sw.js` (CACHE `sen-sandbox-v2.10.0-r8`), `tests/customtest.js` (new, 25), `tests/helptest.js` (20 help notes, 4 Settings panels — the bar panel's help), `tests/README.md`. Main code touched: `normLayout` (inner order), `applyHomeLayout` / `renderHomeMods` / `courseOn` use the active screen's list, `applyLayout` re-applies Home on fold change when a layout has an inner order, `openMore` lists the pages off the bar.
+
+**Verify.** All 31 Main suites unchanged + `fieldtest` 43 + `devicetest` 41 + `typetest` 18 + `helptest` 22 + `striptest` 22 + `customtest` 25 green; `runtests.js` 143/143. Chromium touch 412 px: grip drag moves Devices to the top and saves; bar picker → Home · Advanced · Wind · Holds · More, 76 px each; no sideways scroll, no errors.
+
+---
+
 ## V2.10.0-r7 — Shot strip on the Advanced and Wind pages; review leftovers
 
 **Problem.** UI review item 3 (same shot inputs on four pages) and the leftovers of items 7, 8 and the bugs table: Solve / Recompute / Compute buttons on live pages, Holds not following the session, the chip bar hiding Weather / Wind / Distance off-screen, pressure shown as 974.8223757801871.

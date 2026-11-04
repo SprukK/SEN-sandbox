@@ -1,5 +1,5 @@
 // Help text + unit presets test (SEN-sandbox r5).
-// Help: the static explanations are marked .hlp (19), never a live result, warning or empty state; each
+// Help: the static explanations are marked .hlp (20), never a live result, warning or empty state; each
 // gets one ⓘ (in its panel title, or a "How this works" button when outside a panel); closed by default;
 // a tap opens that panel only and is remembered across a restart; Settings "Always show" opens all;
 // a Settings re-render keeps one ⓘ per panel. Units: Metric / Imperial presets set every quantity except
@@ -30,7 +30,7 @@ w.eval(`Bus.setRifle(DB.rifles.find(r=>/\\.25/.test(r.name)).id);Bus.setProj(DB.
 
 // 1. Help marking
 const hlp=[...w.document.querySelectorAll('.hlp')];
-chk('19 static explanations marked as help',hlp.length===19,String(hlp.length));
+chk('20 static explanations marked as help (r8: + bottom bar)',hlp.length===20,String(hlp.length));
 const live=['home-status','rf-src-home','cal-mount-note','td-ctx','tr-atmo-note','sv-travel-note','wd-mode-note','home-turret-note','screen-info','store-info','fx-sum','bn-empty','ch-hint','u-sum'];
 chk('live results, status lines, empty states and hints are never help',live.every(id=>!$(id)||!$(id).classList.contains('hlp')),live.filter(id=>$(id)&&$(id).classList.contains('hlp')).join());
 chk('warnings are never help',[...w.document.querySelectorAll('.flag.warn,.flag.bad')].every(e=>!e.classList.contains('hlp')));
@@ -55,7 +55,7 @@ w.eval(`setApp('helpAll',true)`);await wait(20);
 chk('Settings "Always show" → every help text shown (help-all), the ⓘ hidden by CSS',w.document.documentElement.classList.contains('help-all')&&/html\.help-all \.help-btn\{display:none\}/.test(css)&&/on/.test([...$('help-mode').children][1].className));
 w.eval(`setApp('helpAll',false)`);w.eval('renderSettings();renderSettings()');await wait(20);
 const sp=[...$('settings-body').querySelectorAll('.panel')].filter(p=>p.querySelector('.hlp'));
-chk('after Settings re-renders: still one ⓘ per panel',sp.length===3&&sp.every(p=>p.querySelectorAll('.help-btn').length===1),sp.map(p=>p.querySelectorAll('.help-btn').length).join());
+chk('after Settings re-renders: still one ⓘ per panel',sp.length===4&&sp.every(p=>p.querySelectorAll('.help-btn').length===1),sp.map(p=>p.querySelectorAll('.help-btn').length).join());
 
 // 4. Unit presets
 chk('fresh install: Metric preset active, per-unit table folded',w.eval('unitPreset()')==='metric'&&/on/.test([...$('u-preset').children][0].className)&&!$('u-custom').open&&/^Metric · angular MRAD$/.test($('u-sum').textContent),$('u-sum').textContent);

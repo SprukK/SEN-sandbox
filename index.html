@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0a0b0e">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
-<title>SEN Sandbox V2.10.0-r7</title>
+<title>SEN Sandbox V2.10.0-r8</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Archivo:wght@500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
@@ -183,6 +183,18 @@ body:has(#page-home.active):has(#home-summary:not(.mod-off)) #sesbar{display:non
 .ses-txt span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ses-txt .ses-2{font-size:13px;color:var(--text3)}
 .dup-hide{display:none!important}
+/* SANDBOX r8 — layout editor grip, screen switch; bottom-bar picker */
+.lay-mod{display:flex;align-items:center;gap:6px}
+.lay-modname{flex:1;min-width:0;font-family:var(--sans);font-size:14px;line-height:1.3}
+.lay-grip{min-width:44px;min-height:48px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--text3);font-size:20px;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
+.lay-mod.lay-drag{background:var(--bg4);border-radius:8px;box-shadow:0 0 0 1px var(--accent)}
+.lay-ro .lay-mod{opacity:.55}
+.lay-scrnote{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:6px 0 10px}.lay-scrnote .note{margin:0}
+#lay-screen{margin-top:12px}
+.navpick{display:grid;grid-template-columns:auto 1fr 1fr 1fr auto;gap:6px;align-items:center}
+.navpick select{padding:8px 4px;font-family:var(--sans)!important}
+.navfix{font-size:13px;color:var(--text3);padding:0 4px}
+@media(max-width:480px){.navpick{grid-template-columns:1fr 1fr 1fr}.navfix{display:none}}
 .sstrip{display:grid;gap:8px;margin-bottom:12px;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:10px}
 .sstrip .fdist-v{min-height:64px;margin:0;position:relative}
 .sstrip .sd-val{font-family:var(--disp);font-size:36px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1}
@@ -1134,7 +1146,7 @@ html.help-all .help-btn{display:none}
 <div class="page" id="page-settings">
   <div id="settings-body"></div>
   <div class="btnrow"><button class="btn" id="reload-btn" onclick="reloadApp()">Reload app</button></div>
-  <div class="note">SEN Sandbox V2.10.0-r7 · UI fork of SEN Ballistics V2.10.0 (physics unchanged) · RTI Mora Sniper · RK4 G7/G1 · single-file PWA · github.com/SprukK/SEN-sandbox</div>
+  <div class="note">SEN Sandbox V2.10.0-r8 · UI fork of SEN Ballistics V2.10.0 (physics unchanged) · RTI Mora Sniper · RK4 G7/G1 · single-file PWA · github.com/SprukK/SEN-sandbox</div>
 </div>
 
 <!-- profile modals -->
@@ -1883,6 +1895,12 @@ function renderSettings(){
       <div class="seg" id="help-mode"><button class="${APP.helpAll!==true?'on':''}" onclick="setApp('helpAll',false)">Behind <i>i</i></button><button class="${APP.helpAll===true?'on':''}" onclick="setApp('helpAll',true)">Always show</button></div></div>
     <div class="note" id="screen-info">${screenInfo()}</div>
     <div class="note hlp">Dual-unit shows a muted secondary value after the primary in big output cards and the home widget. Tables stay single-unit for legibility.</div></div>`;
+  // SANDBOX r8: bottom bar
+  {const t=navTabs(),opts=v=>'<option value="">—</option>'+Object.entries(NAV_ALL).map(([k,[n]])=>`<option value="${k}"${k===v?' selected':''}>${n}</option>`).join('');
+   html+=`<div class="panel" id="nav-panel"><h2>Bottom bar</h2>
+    <div class="navpick"><span class="navfix">Home</span>${[0,1,2].map(i=>`<select aria-label="Bottom bar slot ${i+2}" onchange="setNavTab(${i},this.value)">${opts(t[i])}</select>`).join('')}<span class="navfix">More</span></div>
+    <div class="note hlp">Home is always first and More last. Pages left off the bar are in the More sheet. Advanced holds Trajectory and the Shot solver.</div>
+    <div class="btnrow"><button class="btn" onclick="APP.navTabs=null;saveDB();renderNav();renderSettings()">Default bar</button></div></div>`;}
   // field block (FIX-14a)
   html+=`<div class="panel"><h2>Field</h2>
     <div class="fld"><label>Keep screen awake (live wind / dope use)</label>
@@ -2577,12 +2595,40 @@ function renderActBar(){
 const MORE_PAGES=[['stab','Stability','Berger Sg · twist'],['bench','Design Bench','geometry · mass · SD'],['truing','BC / Truing','BC, SD, MV–temp'],
   ['holds','Holds','reticle holdover'],['profiles','Profiles','rifles, scopes, ammo'],
   ['sensors','Sensors','Calypso · chrono'],['layouts','Layouts','Home per match type'],['formulas','Formulas','§20A self-check'],['settings','Settings','units, display, field']];
+/* SANDBOX r8 — choosable bottom bar. Home is first and More is last; the three slots between take any
+   other page (Advanced = Trajectory + Shot solver). Pages not on the bar are in the More sheet. */
+const NAV_ALL={adv:['Advanced','trajectory · shot solver','↗'],wind:['Wind','drift · source','≋'],dope:['Dope','dope cards','⌸'],
+  stab:['Stability','Berger Sg · twist','◎'],bench:['Bench','geometry · mass · SD','⬡'],truing:['Truing','BC, SD, MV–temp','✓'],holds:['Holds','reticle holdover','⊕'],
+  profiles:['Profiles','rifles, scopes, ammo','☰'],sensors:['Sensors','Calypso · chrono','⌁'],layouts:['Layouts','Home per match type','▦'],formulas:['Formulas','§20A self-check','ƒ'],settings:['Settings','units, display, field','⚙']};
+const NAV_DEFAULT=['adv','wind','dope'];
+const navTabs=()=>{const t=Array.isArray(APP.navTabs)?APP.navTabs.filter((k,i,a)=>NAV_ALL[k]&&a.indexOf(k)===i).slice(0,3):NAV_DEFAULT;return t;};
+const navKey=p=>p==='traj'||p==='solver'?'adv':p;
+function morePages(){
+  const bar=navTabs();
+  return Object.entries(NAV_ALL).filter(([k])=>!bar.includes(k)).map(([k,[n,sub]])=>{const m=MORE_PAGES.find(x=>x[0]===k);return[k,m?m[1]:n,sub];});
+}
+function renderNav(){
+  const nav=document.getElementById('nav');if(!nav)return;
+  const el=(t,cls,txt)=>{const e=document.createElement(t);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e;};
+  const mk=(k,label,icon)=>{const b=el('button');b.type='button';b.append(el('span','ni',icon),document.createTextNode(label));
+    if(k==='adv'){b.id='nav-adv';b.onclick=goAdv;}else{b.dataset.page=k;b.onclick=()=>gotoPage(k);}return b;};
+  const more=el('button');more.type='button';more.id='nav-more';more.onclick=openMore;more.append(el('span','ni','⋯'),document.createTextNode('More'));
+  nav.replaceChildren(mk('home','Home','◉'),...navTabs().map(k=>mk(k,NAV_ALL[k][0],NAV_ALL[k][2])),more);
+  const p=curPage();nav.querySelectorAll('button[data-page]').forEach(b=>b.classList.toggle('on',b.dataset.page===p));
+  more.classList.toggle('on',p!=='home'&&!navTabs().includes(navKey(p)));
+  advSync(p);
+}
+function setNavTab(i,k){
+  const t=[...navTabs()];while(t.length<3)t.push(null);
+  const j=t.indexOf(k);if(j>=0&&j!==i)t[j]=t[i];   // choosing a page already on the bar swaps the two
+  t[i]=NAV_ALL[k]?k:null;APP.navTabs=t.filter(Boolean);saveDB();renderNav();renderSettings();
+}
 function openSheet(html){const sb=document.getElementById('sbox');delete sb.dataset.dev;sb.innerHTML='<div class="sgrab"></div>'+html;document.getElementById('sheet').classList.add('open');backArm();}
 function closeSheet(){document.getElementById('sheet').classList.remove('open');const b=document.getElementById('sbox');b.innerHTML='';delete b.dataset.dev;}
 function openMore(){
   const cur=document.querySelector('.page.active')?.id.replace('page-','')||'';
-  openSheet('<h3>More</h3><div class="nav navsheet">'+MORE_PAGES.map(([id,name,sub])=>
-    `<button data-page="${id}" class="${id===cur?'on':''}" onclick="closeSheet();gotoPage('${id}')">${name}<span class="nsub">${sub}</span></button>`).join('')+'</div>');
+  openSheet('<h3>More</h3><div class="nav navsheet">'+morePages().map(([id,name,sub])=>
+    `<button data-page="${id}" class="${id===cur?'on':''}" onclick="closeSheet();${id==='adv'?'goAdv()':`gotoPage('${id}')`}">${name}<span class="nsub">${sub}</span></button>`).join('')+'</div>');
 }
 function sItem(kind,id,name,meta,on){
   return `<button class="sitem ${on?'on':''}" onclick="sheetPick('${kind}','${id}')"><span>${name}</span><span class="sm">${meta||''}</span></button>`;
@@ -3064,7 +3110,7 @@ function gotoPage(p){
   document.querySelectorAll('.nav button').forEach(e=>e.classList.toggle('on',e.dataset.page===p));
   // V1.17.0: pages that live behind More keep the More tab lit, so the bar never looks unselected
   const more=document.getElementById('nav-more');
-  if(more)more.classList.toggle('on',MORE_PAGES.some(m=>m[0]===p));
+  if(more)more.classList.toggle('on',p!=='home'&&!navTabs().includes(navKey(p)));   // SANDBOX r8: any page not on the bar
   advSync(p);  // SANDBOX r6
   hdrPage(p);  // SANDBOX r1
   navTrack(prevPg,p);  // SANDBOX r2
@@ -3089,6 +3135,7 @@ function gotoPage(p){
 // its own inline openMore() handler — the old unconditional wiring overwrote it with
 // gotoPage(undefined), which then threw on getElementById('page-undefined').
 document.querySelectorAll('.nav button[data-page]').forEach(b=>b.onclick=()=>gotoPage(b.dataset.page));
+// SANDBOX r8: the bar itself is rebuilt from Settings at boot (renderNav, in fieldInit)
 function setDrag(d){
   S.drag=d;Bus.pullFromProfiles(['bc']);syncDragUI();Bus.notify();
 }
@@ -5019,7 +5066,7 @@ Bus.on(()=>{if(document.getElementById('page-sensors')?.classList.contains('acti
    moves dash/turret/conditions into the rail; ordering then uses its placeholders. All layout UI
    is built with createElement/textContent — no HTML from user text. */
 const HOME_MODS={
-  solution:{el:'home-dash',name:'Reticle + elevation / windage (reticle only when Answer is on)'},
+  solution:{el:'home-dash',name:'Reticle (+ clicks when Answer is off)'},
   summary:{el:'home-summary',name:'Session summary (one line)'},     // SANDBOX r1
   answer:{el:'home-answer',name:'Answer — elevation / windage clicks'}, // SANDBOX r1
   distance:{el:'home-distance',name:'Distance — tap to type, hold and drag'}, // SANDBOX r1
@@ -5052,14 +5099,22 @@ function layoutFromTpl(t,name){
   return{id:uid(),name:name||T.name,tpl:t,mods:[...T.on.map(id=>({id,on:true})),...Object.keys(HOME_MODS).filter(k=>!T.on.includes(k)).map(id=>({id,on:false}))],set:{...T.set}};
 }
 // Keep every stored layout valid: known modules only, each exactly once, new modules appended (off).
-function normLayout(L){
+function normMods(arr){
   const seen=new Set(),mods=[];
-  (Array.isArray(L.mods)?L.mods:[]).forEach(m=>{if(m&&HOME_MODS[m.id]&&!seen.has(m.id)){seen.add(m.id);mods.push({id:m.id,on:!!m.on});}});
+  (Array.isArray(arr)?arr:[]).forEach(m=>{if(m&&HOME_MODS[m.id]&&!seen.has(m.id)){seen.add(m.id);mods.push({id:m.id,on:!!m.on});}});
   Object.keys(HOME_MODS).forEach(id=>{if(!seen.has(id))mods.push({id,on:false});});
-  const s=L.set||{};
-  return{id:typeof L.id==='string'&&L.id?L.id:uid(),name:String(L.name||'Layout').slice(0,40),tpl:LAYOUT_TPL[L.tpl]?L.tpl:'blank',mods,
-    set:{dist:s.dist>0?+s.dist:null,timerMin:s.timerMin>0?Math.min(180,+s.timerMin):20,shots:s.shots>0?Math.min(999,Math.round(s.shots)):25}};
+  return mods;
 }
+function normLayout(L){
+  const mods=normMods(L.mods);
+  const s=L.set||{};
+  const out={id:typeof L.id==='string'&&L.id?L.id:uid(),name:String(L.name||'Layout').slice(0,40),tpl:LAYOUT_TPL[L.tpl]?L.tpl:'blank',mods,
+    set:{dist:s.dist>0?+s.dist:null,timerMin:s.timerMin>0?Math.min(180,+s.timerMin):20,shots:s.shots>0?Math.min(999,Math.round(s.shots)):25}};
+  if(Array.isArray(L.modsInner))out.modsInner=normMods(L.modsInner);   // SANDBOX r8: the inner screen's own order (optional)
+  return out;
+}
+// SANDBOX r8: the module list in effect — the inner screen's own one when it has one and the app is two-pane
+const activeMods=L=>L?(typeof twoPane!=='undefined'&&twoPane&&Array.isArray(L.modsInner)?L.modsInner:L.mods):[];
 function initLayouts(){
   if(!Array.isArray(APP.layouts)||!APP.layouts.length)APP.layouts=['default','br50','br100','prs','bigbore'].map(t=>layoutFromTpl(t));
   APP.layouts=APP.layouts.map(normLayout);
@@ -5079,14 +5134,14 @@ function initLayouts(){
 const activeLayout=()=>Array.isArray(APP.layouts)?(APP.layouts.find(l=>l.id===APP.layoutId)||APP.layouts[0]||null):null;
 function applyHomeLayout(){
   const L=activeLayout(),home=document.getElementById('page-home');if(!L||!home)return;
-  L.mods.forEach(m=>{
+  activeMods(L).forEach(m=>{
     const el=document.getElementById(HOME_MODS[m.id].el);if(!el)return;
     el.classList.toggle('mod-off',!m.on);
     const mark=document.querySelector('[data-rail-home="'+HOME_MODS[m.id].el+'"]');
     home.appendChild(mark||el);
   });
   const b=document.getElementById('home-layout-name');if(b)b.textContent=L.name+' ▾';
-  const dash=document.getElementById('home-dash');if(dash)dash.classList.toggle('ans-on',L.mods.some(m=>m.id==='answer'&&m.on));  // SANDBOX r1
+  const dash=document.getElementById('home-dash');if(dash)dash.classList.toggle('ans-on',activeMods(L).some(m=>m.id==='answer'&&m.on));  // SANDBOX r1
   renderQuick();
 }
 function useLayout(id){
@@ -5483,6 +5538,7 @@ function goAdv(){gotoPage(ADV_PAGES.includes(APP.advLast)?APP.advLast:'traj');}
 function advSync(p){
   const on=ADV_PAGES.includes(p),b=document.getElementById('nav-adv');if(b)b.classList.toggle('on',on);
   if(!on)return;
+  if(!b){const m=document.getElementById('nav-more');if(m)m.classList.add('on');}   // r8: Advanced not on the bar → More
   if(APP.advLast!==p){APP.advLast=p;saveDBSoon();}
   document.querySelectorAll('.advtabs button').forEach(t=>{const sel=t.dataset.adv===p;t.classList.toggle('on',sel);t.setAttribute('aria-selected',String(sel));});
 }
@@ -5513,13 +5569,13 @@ function fieldInit(){
   const b=document.getElementById('fd-btn');
   if(b&&!b._g){b._g=true;senGesture(b,{tap:()=>pickSheet('dist'),hold:fdHold,drag:fdDrag,end:fdEnd});}
   hdrPage(curPage());fieldSync();
-  if(!fieldInit._done){fieldInit._done=true;backInit();kbInit();devInit();divInit();helpSync();stripInit();sesSync();   // SANDBOX r2 + r3 + r5 + r7
+  if(!fieldInit._done){fieldInit._done=true;backInit();kbInit();devInit();divInit();helpSync();stripInit();sesSync();renderNav();   // SANDBOX r2 + r3 + r5 + r7 + r8
     Bus.on(()=>{if(curPage()==='holds')renderHolds();});}   // r7: Holds follows the session like the other pages
 }
 
 /* ── benchrest modules ── */
 function renderHomeMods(tr){
-  const L=activeLayout(),on=id=>L&&L.mods.some(m=>m.id===id&&m.on);
+  const L=activeLayout(),on=id=>L&&activeMods(L).some(m=>m.id===id&&m.on);
   const ok=tr&&!tr.bcPending&&tr.pts,z=ok?zeroConds():null,scope=rifleScope(getRifle()),click=scope?.clickStepMrad||0.1;
   const solve=(w,dir)=>ok?solveShot(tr.pts,nearestPt,z.range,S.dist_m,0,w,dir,S.mv,click,z.wSpd,z.wDir):null;
   const set=(id,t)=>{const e=document.getElementById(id);if(e)e.textContent=t;};
@@ -5598,15 +5654,27 @@ function renderLayoutEditor(){
   const name=el('input');name.type='text';name.id='lay-name-in';name.maxLength=40;name.value=L.name;
   name.oninput=()=>{L.name=name.value.trim().slice(0,40)||'Layout';saveDB();if(L.id===APP.layoutId)document.getElementById('home-layout-name').textContent=L.name+' ▾';
     const r=[...document.querySelectorAll('#lay-list .lay-name')][APP.layouts.indexOf(L)];if(r&&r.firstChild)r.firstChild.textContent=L.name;};
-  const mods=el('div','lay-mods');
-  L.mods.forEach((m,i)=>{
+  // SANDBOX r8: which screen is being edited; the inner screen follows the outer one until it gets its own order
+  const inner=layEditScreen==='inner',own=Array.isArray(L.modsInner),list=inner&&own?L.modsInner:L.mods,ro=inner&&!own;
+  const scr=el('div','seg');scr.id='lay-screen';
+  [['outer','Outer screen'],['inner','Inner screen']].forEach(([k,t])=>{const b=el('button',layEditScreen===k?'on':'',t);b.type='button';b.onclick=()=>{layEditScreen=k;renderLayoutEditor();};scr.appendChild(b);});
+  const scrNote=el('div','lay-scrnote');
+  if(inner){
+    scrNote.appendChild(el('span','note',own?'The inner screen has its own order.':'The inner screen uses the outer screen\'s order.'));
+    const b=el('button','btn',own?'Same as outer screen':'Give the inner screen its own order');b.type='button';b.id='lay-own';
+    b.onclick=()=>{if(own)delete L.modsInner;else L.modsInner=L.mods.map(m=>({...m}));layoutChanged(L);};scrNote.appendChild(b);
+  }
+  const mods=el('div','lay-mods'+(ro?' lay-ro':''));
+  list.forEach((m,i)=>{
     const r=el('div','lay-mod'+(m.on?'':' lay-modoff'));r.dataset.mod=m.id;
-    const up=el('button','btn-xs','▲');up.setAttribute('aria-label','Move '+HOME_MODS[m.id].name+' up');up.disabled=i===0;
-    up.onclick=()=>{[L.mods[i-1],L.mods[i]]=[L.mods[i],L.mods[i-1]];layoutChanged(L);};
-    const dn=el('button','btn-xs','▼');dn.setAttribute('aria-label','Move '+HOME_MODS[m.id].name+' down');dn.disabled=i===L.mods.length-1;
-    dn.onclick=()=>{[L.mods[i+1],L.mods[i]]=[L.mods[i],L.mods[i+1]];layoutChanged(L);};
-    const tg=el('button','btn-xs'+(m.on?' on':''),m.on?'On':'Off');tg.onclick=()=>{m.on=!m.on;layoutChanged(L);};
-    r.append(up,dn,el('span','lay-modname',HOME_MODS[m.id].name),tg);mods.appendChild(r);
+    const h=el('button','lay-grip','⠿');h.type='button';h.setAttribute('aria-label','Drag to move '+HOME_MODS[m.id].name);h.disabled=ro;
+    const up=el('button','btn-xs','▲');up.setAttribute('aria-label','Move '+HOME_MODS[m.id].name+' up');up.disabled=ro||i===0;
+    up.onclick=()=>{[list[i-1],list[i]]=[list[i],list[i-1]];layoutChanged(L);};
+    const dn=el('button','btn-xs','▼');dn.setAttribute('aria-label','Move '+HOME_MODS[m.id].name+' down');dn.disabled=ro||i===list.length-1;
+    dn.onclick=()=>{[list[i+1],list[i]]=[list[i],list[i+1]];layoutChanged(L);};
+    const tg=el('button','btn-xs'+(m.on?' on':''),m.on?'On':'Off');tg.disabled=ro;tg.onclick=()=>{m.on=!m.on;layoutChanged(L);};
+    r.append(h,el('span','lay-modname',HOME_MODS[m.id].name),up,dn,tg);mods.appendChild(r);
+    if(!ro)layGrip(h,r,mods,L,list);
   });
   const num=(q,v,step,fn)=>{const i=el('input');i.type='number';i.dataset.q=q;i.step=step;i.value=v==null?'':String(v);i.onchange=()=>fn(i.value===''?null:+i.value);return i;};
   const dist=num('range',L.set.dist,'5',v=>{L.set.dist=v>0?v:null;if(L.id===APP.layoutId&&L.set.dist)Bus.set('dist_m',L.set.dist);layoutChanged(L);});
@@ -5616,7 +5684,31 @@ function renderLayoutEditor(){
   const reset=el('button','btn','Reset to template');reset.onclick=()=>{const t=layoutFromTpl(L.tpl,L.name);L.mods=t.mods;L.set=t.set;layoutChanged(L);};
   const done=el('button','btn primary','Done');done.onclick=()=>{layoutEditId=null;renderLayouts();};
   const br=el('div','btnrow');br.append(reset,done);
-  ed.replaceChildren(el('h2',null,'Edit layout'),fld('Name',name),el('div','note','Home, top to bottom. ▲▼ moves a module, On/Off shows or hides it. The fold rail keeps the solution, turret and conditions on the right.'),mods,grid,br);
+  ed.replaceChildren(el('h2',null,'Edit layout'),fld('Name',name),scr,scrNote,el('div','note','Home, top to bottom. Drag ⠿ (or ▲▼) to move a module, On/Off shows or hides it. On the inner screen the solution, turret and conditions sit in the right pane.'),mods,grid,br);
+}
+/* SANDBOX r8 — drag a module row by its ⠿ grip: the row follows the finger, the list reorders live
+   (each row's centre decides), the new order is saved on release. ▲▼ stay for keyboard use. */
+let layEditScreen='outer';
+function layGrip(h,row,box,L,list){
+  // the finger is followed on the document: moving the row in the list would drop pointer capture on it
+  let id=null;
+  const move=e=>{
+    if(e.pointerId!==id)return;e.preventDefault();
+    const rows=[...box.children].filter(r=>r!==row);
+    const next=rows.find(r=>{const b=r.getBoundingClientRect();return e.clientY<b.top+b.height/2;});
+    if(next){if(row.nextElementSibling!==next)box.insertBefore(row,next);}else if(box.lastElementChild!==row)box.appendChild(row);
+  };
+  const up=e=>{
+    if(e.pointerId!==id)return;id=null;row.classList.remove('lay-drag');
+    document.removeEventListener('pointermove',move,true);document.removeEventListener('pointerup',up,true);document.removeEventListener('pointercancel',up,true);
+    const order=[...box.children].map(r=>r.dataset.mod),before=list.map(m=>m.id).join();
+    if(order.join()!==before){const by=Object.fromEntries(list.map(m=>[m.id,m]));list.splice(0,list.length,...order.map(k=>by[k]));layoutChanged(L);}
+  };
+  h.addEventListener('contextmenu',e=>e.preventDefault());
+  h.addEventListener('pointerdown',e=>{
+    if(e.button>0||id!==null)return;id=e.pointerId;row.classList.add('lay-drag');buzz(10);e.preventDefault();
+    document.addEventListener('pointermove',move,{capture:true,passive:false});document.addEventListener('pointerup',up,true);document.addEventListener('pointercancel',up,true);
+  });
 }
 
 /* ═════════ CORE-16 part 2 (V1.27.0) — COURSE RUNNER (PRS · Big bore) ═════════
@@ -5631,7 +5723,7 @@ function renderLayoutEditor(){
 const courseRun=()=>APP.run||(APP.run={cardId:null,si:0,ti:0,calls:{},start:null});
 function courseCard(){const r=courseRun();return DB.dopeCards.find(c=>c.id===r.cardId)||DB.dopeCards[0]||null;}
 function courseStage(){const c=courseCard();if(!c||!c.stages.length)return null;return c.stages[Math.min(courseRun().si,c.stages.length-1)];}
-function courseOn(){const L=activeLayout();return!!(L&&L.mods.some(m=>m.id==='course'&&m.on));}
+function courseOn(){const L=activeLayout();return!!(L&&activeMods(L).some(m=>m.id==='course'&&m.on));}
 function courseMaxRange(){const st=courseOn()?courseStage():null;return st?Math.max(0,...st.dists.map(d=>+d.range||0))+25:0;}
 let courseIv=null;
 function courseSave(){saveDBSoon();renderQuick();}
@@ -5911,6 +6003,7 @@ function applyLayout(){
   layout=mode;twoPane=two;
   document.documentElement.classList.toggle('fold',two);
   applyPane(curPage());
+  if(Array.isArray(APP.layouts)&&APP.layouts.length&&APP.layouts.some(l=>Array.isArray(l.modsInner)))applyHomeLayout();   // SANDBOX r8: fold ↔ unfold switches module order
   info();renderQuick();divPos();
 }
 const homeVisible=()=>paneShown==='rail'||document.getElementById('page-home').classList.contains('active');
