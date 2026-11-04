@@ -5,6 +5,23 @@ Versions: `V{Main base}-r{n}`. Deploy set per release: `RTI-SEN-Ballistic-Calcul
 
 ---
 
+## V2.10.0-r7 — Shot strip on the Advanced and Wind pages; review leftovers
+
+**Problem.** UI review item 3 (same shot inputs on four pages) and the leftovers of items 7, 8 and the bugs table: Solve / Recompute / Compute buttons on live pages, Holds not following the session, the chip bar hiding Weather / Wind / Distance off-screen, pressure shown as 974.8223757801871.
+
+**Change.**
+- **Shot strip** after the output card on **Trajectory** (distance · angle · wind), **Shot solver** (distance · angle · wind · cant) and **Wind** (distance · angle; the page keeps its own wind panel). The distance is the Field control (tap → sheet with the Settings unit switch, hold + drag ±1 / ±10). Angle and cant sheets write Home's fields; a new **wind sheet** sets a manual session wind and pauses live wind first (as the Weather pill). Home's Field *Wind* button now opens that sheet instead of jumping to the Wind page.
+- The solver's own distance / angle / wind / cant fields and Trajectory's target distance are hidden but kept, mirrored from the session before each solve. **Behaviour change:** entering the Shot solver takes the whole shot from the session — its angle and cant are Home's (before, the solver kept its own angle / cant and a what-if wind; that what-if is now a session change). The "Wind from" choice reads "Session wind | Live wind stations".
+- **Solve, Recompute and Compute** hidden; **Holds** re-renders on every session change. Print stays.
+- **Session bar** on every page (Home only when the Field summary is off): line 1 rifle · projectile, line 2 MV · temperature · wind · distance; tap → the six session pickers. The chips are hidden.
+- **Pressure** on Trajectory shown to 0.1 hPa; the session keeps the exact station pressure (the field is only read back when typed in).
+
+**Files.** `index.html`, `RTI-SEN-Ballistic-Calculator-V2.10.0-r7-redesign.html` (identical), `sw.js` (CACHE `sen-sandbox-v2.10.0-r7`), `tests/striptest.js` (new, 22), `tests/README.md`. Main code touched: solver page-enter seeds via `stripMirror()`; r1's distance drag generalised to any distance control; `openAngleSheet` takes angle / cant.
+
+**Verify.** All 31 Main suites unchanged + `fieldtest` 43 + `devicetest` 41 + `typetest` 18 + `helptest` 22 + `striptest` 22 green; `runtests.js` 143/143. Chromium touch 412 / 780: drag on the solver strip 100 → 120 m, solver = Home ↑52; wind sheet 3 m/s @ 270° mirrored; pressure 974.8 shown, S.cp exact; all text ≥ 12 px, no sideways scroll, no errors.
+
+---
+
 ## V2.10.0-r6 — Advanced tab: Trajectory + Shot solver as sub-tabs
 
 **Problem.** UI review item 3 / owner request 2026-11-04: Trajectory and Solver took two of six bottom-bar slots. Owner rule: join them into one "Advanced" tab, as sub-tabs if they are separate tools.

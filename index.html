@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0a0b0e">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
-<title>SEN Sandbox V2.10.0-r6</title>
+<title>SEN Sandbox V2.10.0-r7</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Archivo:wght@500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
@@ -176,7 +176,21 @@ tr.zr td{color:var(--gold)}
 .dsol-u{font-family:var(--mono);font-size:10px;color:var(--text2)}
 /* SANDBOX r1 — Field modules */
 .dash.ans-on .dash-sol{display:none}
-body:has(#page-home.active):has(#home-summary:not(.mod-off)) #actbar{display:none}
+#actbar{display:none}   /* SANDBOX r7: the session bar below replaces the chips everywhere */
+body:has(#page-home.active):has(#home-summary:not(.mod-off)) #sesbar{display:none}
+.sesbar{padding:8px 0 4px}
+.ses-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.ses-txt span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ses-txt .ses-2{font-size:13px;color:var(--text3)}
+.dup-hide{display:none!important}
+.sstrip{display:grid;gap:8px;margin-bottom:12px;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:10px}
+.sstrip .fdist-v{min-height:64px;margin:0;position:relative}
+.sstrip .sd-val{font-family:var(--disp);font-size:36px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1}
+.sstrip-l{position:absolute;left:12px;top:8px;font-family:var(--sans);font-size:12px;color:var(--text3)}
+.sstrip.grab .fdist-v{border-color:var(--accent);background:rgba(114,180,194,.10)}
+.sstrip-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px}
+.sstrip-row:has(.sd-cant){grid-template-columns:1fr 1.6fr 1fr}
+.fdist-sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .fsum{margin:10px 0}
 .fsum-btn{width:100%;display:flex;align-items:center;gap:8px;min-height:48px;padding:10px 14px;background:var(--bg2);border:1px solid var(--border2);border-radius:10px;color:var(--text2);font-family:var(--sans);font-size:14px;text-align:left}
 .fsum-txt{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -459,6 +473,8 @@ html.help-all .help-btn{display:none}
 
 <!-- Active selections bar — the visible face of Session State -->
 <div class="actbar" id="actbar"></div>
+<!-- SANDBOX r7: one two-line session bar instead of the overflowing chips; tap = the same pickers -->
+<div class="sesbar" id="sesbar"><button type="button" class="fsum-btn" onclick="openSummarySheet()"><span class="ses-txt" id="ses-txt">—</span><span class="fsum-chev">▾</span></button></div>
 
 <div class="nav navbar" id="nav">
   <button data-page="home" class="on"><span class="ni">◉</span>Home</button>
@@ -491,7 +507,7 @@ html.help-all .help-btn{display:none}
     <div class="fdist-l">Distance <span class="fdist-src" id="fd-src"></span></div>
     <button type="button" class="fdist-v" id="fd-btn" aria-label="Distance — tap to type, hold and drag to adjust"><span class="fdist-num"><span id="fd-val">—</span><span class="fdist-u" id="fd-unit"></span></span><span class="fdist-hint" aria-hidden="true">⇕</span></button>
     <div class="fdist-tip" id="fd-tip">Hold and drag: ← → ±1 · ↑ ↓ ±10</div>
-    <div class="fdist-row"><button type="button" class="fdist-sub" id="fd-angle" onclick="openAngleSheet()">Angle 0°</button><button type="button" class="fdist-sub" id="fd-wind" onclick="pickSheet('wind')">Wind —</button></div>
+    <div class="fdist-row"><button type="button" class="fdist-sub" id="fd-angle" onclick="openAngleSheet()">Angle 0°</button><button type="button" class="fdist-sub" id="fd-wind" onclick="openWindSheet()">Wind —</button></div>
   </div>
   <!-- SANDBOX r2 — device row: tap pauses that kind of sensor, hold opens its devices -->
   <div class="fdev mod-off" id="home-devices">
@@ -664,7 +680,7 @@ html.help-all .help-btn{display:none}
     <h2>Ranges</h2>
     <div class="fgrid3">
       <div class="fld"><label>Zero range m</label><input type="number" id="tr-zero" value="50" step="5" oninput="Bus.set('zero_m',+this.value)"></div>
-      <div class="fld"><label>Target dist m</label><input type="number" id="tr-dist" value="100" step="5" oninput="Bus.set('dist_m',+this.value)"></div>
+      <div class="fld dup-hide"><label>Target dist m</label><input type="number" id="tr-dist" value="100" step="5" oninput="Bus.set('dist_m',+this.value)"></div>
       <div class="fld"><label>Max range m</label><input type="number" id="tr-max" value="200" step="25" oninput="autoTraj()"></div>
       <div class="fld"><label>Table step m</label><input type="number" id="tr-step" value="25" step="5" oninput="autoTraj()"></div>
     </div>
@@ -684,8 +700,8 @@ html.help-all .help-btn{display:none}
     <div class="note" id="tr-atmo-note"></div>
   </div>
 
-  <div class="btnrow"><button class="btn primary" onclick="runTraj(false)">Recompute</button></div>
-  <div class="note hlp">The solution updates automatically whenever the session changes — Recompute is a manual refresh, never a prerequisite. Max range extends itself to cover the target and zero.</div>
+  <div class="btnrow dup-hide"><button class="btn primary" onclick="runTraj(false)">Recompute</button></div>
+  <div class="note hlp dup-hide">The solution updates automatically whenever the session changes — Recompute is a manual refresh, never a prerequisite. Max range extends itself to cover the target and zero.</div>
 
   <div class="chartbox" style="margin-top:12px"><canvas id="tr-chart"></canvas></div>
   <div class="tablebox"><div class="ct">Drop table · clicks relative to zero range</div><table><thead><tr><th>Range</th><th>Drop <span data-ul="drop">mm</span></th><th>mrad</th><th>MOA</th><th>Clicks</th><th>V <span data-ul="vel">m/s</span></th><th>Mach</th><th>E <span data-ul="energy">J</span></th><th>TOF s</th></tr></thead><tbody id="tr-tbody"></tbody></table><div class="note" id="tr-tnote"></div></div>
@@ -768,7 +784,7 @@ html.help-all .help-btn{display:none}
       <div class="fld"><label>Ref crosswind m/s</label><input type="number" id="hd-wind" step="0.5" value="2.5" oninput="renderHolds()"></div>
     </div>
     <div class="note hlp">Assumes the turret is AT ZERO (no dialing) and full-value crosswind for the wind column. Uses the active session (rifle · projectile · current weather) at <span data-uv="range|1">1 m</span> resolution. Reticle marks are measured DOWN from center on the active scope's reticle.</div>
-    <div class="btnrow"><button class="btn primary" onclick="renderHolds()">Compute</button><button class="btn" onclick="printHolds()">Print</button></div>
+    <div class="btnrow"><button class="btn primary dup-hide" onclick="renderHolds()">Compute</button><button class="btn" onclick="printHolds()">Print</button></div>
   </div>
   <div id="hd-flags"></div>
   <div class="tablebox"><div class="ct" id="hd-title">Holdover</div><table><thead><tr><th>Range</th><th>Hold</th><th>clk equiv</th><th>Reticle mark</th><th>Wind hold</th></tr></thead><tbody id="hd-tbody"></tbody></table></div>
@@ -905,18 +921,18 @@ html.help-all .help-btn{display:none}
   </div>
   <div class="panel">
     <h2>Shot</h2>
-    <div class="fgrid3">
+    <div class="fgrid3 dup-hide">   <!-- SANDBOX r7: replaced by the shot strip; kept hidden, mirrored from the session -->
       <div class="fld"><label>Target dist m</label><input type="number" id="sv-tdist" step="5" value="100" oninput="Bus.set('dist_m',+this.value);solve()"></div>
       <div class="fld"><label>Shot angle °</label><input type="number" id="sv-angle" step="1" value="0" oninput="solve()"></div>
       <div class="fld"><label>Wind m/s</label><input type="number" id="sv-wind" step="0.1" value="0" oninput="solve()"></div>
       <div class="fld"><label>Wind dir °</label><input type="number" id="sv-wdir" step="5" value="90" oninput="solve()"></div>
       <div class="fld"><label>Cant ° (+ right)</label><input type="number" id="sv-cant" step="0.5" value="0" oninput="solve()"></div>
     </div>
-    <div class="fld" style="margin-top:8px"><label>Wind from</label><div class="seg"><button id="sv-ws-in" class="on" onclick="svSetStations(false)">The inputs above</button><button id="sv-ws-st" onclick="svSetStations(true)">Live wind stations</button></div></div>
+    <div class="fld" style="margin-top:8px"><label>Wind from</label><div class="seg"><button id="sv-ws-in" class="on" onclick="svSetStations(false)">Session wind</button><button id="sv-ws-st" onclick="svSetStations(true)">Live wind stations</button></div></div>
     <div class="note" id="sv-ws-note"></div>
     <div class="note" id="rf-src-sv"></div>
     <div class="note hlp">Clicks relative to zero range (zero = 0 by construction). Angle: the trajectory is re-solved along the slope (slant range); a head/tailwind component is integrated too. Wind clicks are the delta vs the wind already held at zero range.</div>
-    <div class="btnrow"><button class="btn primary" onclick="solve()">Solve</button></div>
+    <div class="btnrow dup-hide"><button class="btn primary" onclick="solve()">Solve</button></div>
   </div>
   <div class="panel">
     <h2>Advanced corrections · V1.14.0</h2>
@@ -1118,7 +1134,7 @@ html.help-all .help-btn{display:none}
 <div class="page" id="page-settings">
   <div id="settings-body"></div>
   <div class="btnrow"><button class="btn" id="reload-btn" onclick="reloadApp()">Reload app</button></div>
-  <div class="note">SEN Sandbox V2.10.0-r6 · UI fork of SEN Ballistics V2.10.0 (physics unchanged) · RTI Mora Sniper · RK4 G7/G1 · single-file PWA · github.com/SprukK/SEN-sandbox</div>
+  <div class="note">SEN Sandbox V2.10.0-r7 · UI fork of SEN Ballistics V2.10.0 (physics unchanged) · RTI Mora Sniper · RK4 G7/G1 · single-file PWA · github.com/SprukK/SEN-sandbox</div>
 </div>
 
 <!-- profile modals -->
@@ -2549,6 +2565,7 @@ function actItems(){
     ['Distance',ut('range',S.dist_m),'dist']];
 }
 function renderActBar(){
+  if(typeof sesSync==='function')sesSync();   // SANDBOX r7
   // V1.17.0: a chip now opens its own picker sheet instead of navigating to the Trajectory tab.
   // Changing the session no longer costs you the tab you were working on.
   const chip=(k,v,kind)=>`<button class="actchip" onclick="pickSheet('${kind}')"><span class="k">${k}</span><span class="v">${esc(v)}</span></button>`;
@@ -3013,7 +3030,7 @@ function nearestPt(pts,d){
 function syncTrajInputs(){
   const setv=(id,v)=>{const e=document.getElementById(id);if(e&&document.activeElement!==e)e.value=v==null?'':v;};
   setv('tr-mv',S.mv);setv('tr-bc',S.bc);setv('tr-sight',S.sight_mm);
-  setv('tr-ct',S.ct);setv('tr-cp',S.cp);setv('tr-crh',S.crh);
+  setv('tr-ct',S.ct);setv('tr-cp',S.cp==null?null:+(+S.cp).toFixed(1));setv('tr-crh',S.crh);   // SANDBOX r7: shown to 0.1 hPa, S.cp stays exact
   setv('tr-zero',S.zero_m);setv('tr-dist',S.dist_m);
   ['mv','bc','sight','ct','cp','crh'].forEach(markSrc);
   const z=zeroConds();
@@ -3061,7 +3078,7 @@ function gotoPage(p){
   if(p==='home')renderQuick();
   if(p==='stab'&&getRifle()&&getProj())stabFromActive();
   if(p==='wind'){document.getElementById('wd-spd').value=S.wind.speed;document.getElementById('wd-dir').value=S.wind.dir;setWindMode(S.wind.source==='calypso'?'live':'manual');}
-  if(p==='solver'){document.getElementById('sv-tdist').value=S.dist_m;document.getElementById('sv-wind').value=S.wind.speed;document.getElementById('sv-wdir').value=S.wind.dir;solve();}
+  if(p==='solver'){stripMirror();solve();}   // SANDBOX r7: distance, angle, cant and wind all from the session
   if(p==='dope'){refreshDopeSel();loadDope();}
   if(p==='truing'){tuInit();if(getProj())bcFromProj();else calcBC();mvtRender();}
   if(p==='holds')renderHolds();
@@ -5133,13 +5150,13 @@ const FD_MAX_M=1500;
 const fdUnit=()=>UNITS.range;
 const fdToDisp=m=>QDEF.range.to[fdUnit()](m);
 const fdToM=d=>QDEF.range.from[fdUnit()](d);
-const fdShow=d=>{const v=document.getElementById('fd-val');if(v)v.textContent=String(d);};
+const fdShow=d=>{document.querySelectorAll('#fd-val,.sd-val').forEach(v=>{v.textContent=String(d);});};   // r7: Home's control and every shot strip
 let fdPending=null,fdTimer=0;
-function fdApply(){fdTimer=0;if(fdPending==null)return;const m=fdPending;fdPending=null;homeInput('dist',m);rfSrcRender();}
+function fdApply(){fdTimer=0;if(fdPending==null)return;const m=fdPending;fdPending=null;homeInput('dist',m);rfSrcRender();stripAfter();}
 function fdQueue(m){fdPending=m;if(!fdTimer)fdTimer=(typeof requestAnimationFrame==='function'?requestAnimationFrame:f=>setTimeout(f,16))(fdApply);}
 function fdHold(st){
   st.val=Math.round(fdToDisp(S.dist_m));st.ax=0;st.ay=0;st.lx=st.x;st.ly=st.y;st.lt=performance.now();st.v=0;
-  document.getElementById('home-distance').classList.add('grab');
+  st.box=st.box||document.getElementById('home-distance');st.box.classList.add('grab');
 }
 // left/right = ±1 per 12 px, up/down = ±10 per 16 px; the axis that moved most since the last
 // step wins (a slightly diagonal drag never jumps by 10); quick drags step ×2 / ×5.
@@ -5157,7 +5174,7 @@ function fdDrag(e,st){
   st.val=nv;buzz(5);fdShow(nv);fdQueue(fdToM(nv));
 }
 function fdEnd(st){
-  document.getElementById('home-distance').classList.remove('grab');
+  (st.box||document.getElementById('home-distance')).classList.remove('grab');
   if(fdTimer&&typeof cancelAnimationFrame==='function')cancelAnimationFrame(fdTimer);
   fdApply();
   if(!APP.fdTipSeen){APP.fdTipSeen=true;saveDBSoon();fieldSync();}
@@ -5176,14 +5193,14 @@ function distSheetExtras(){
   inp.addEventListener('keydown',e=>{if(e.key==='Enter')sheetSetNum('dist');});
   setTimeout(()=>{try{inp.focus();inp.select();}catch(e){}},50);
 }
-// shot angle (Home's own angle field, as in the Shot inputs module)
-function openAngleSheet(){
-  const cur=document.getElementById('home-angle');
-  openSheet('<h3>Shot angle</h3>');
+// shot angle / cant: Home's own fields, which are the session's (r7: the solver mirrors them)
+function openAngleSheet(kind){
+  const cant=kind==='cant',cur=document.getElementById(cant?'home-cant':'home-angle');
+  openSheet('<h3>'+(cant?'Cant':'Shot angle')+'</h3>');
   const box=document.getElementById('sbox'),f=document.createElement('div');f.className='fld';
-  const l=document.createElement('label');l.textContent='Angle ° (+ uphill, − downhill)';
-  const i=document.createElement('input');i.type='number';i.id='sh-angle';i.step='1';i.value=cur?cur.value:'0';
-  const set=()=>{const v=parseFloat(i.value);if(cur&&!isNaN(v)){cur.value=String(v);homeInput('angle',v);rfSrcRender();}closeSheet();};
+  const l=document.createElement('label');l.textContent=cant?'Cant ° (+ right, − left)':'Angle ° (+ uphill, − downhill)';
+  const i=document.createElement('input');i.type='number';i.id=cant?'sh-cant':'sh-angle';i.step=cant?'0.5':'1';i.value=cur?cur.value:'0';
+  const set=()=>{const v=parseFloat(i.value);if(cur&&!isNaN(v)){cur.value=String(v);homeInput('angle',v);rfSrcRender();stripAfter();}closeSheet();};
   i.addEventListener('keydown',e=>{if(e.key==='Enter')set();});
   f.append(l,i);
   const row=document.createElement('div');row.className='btnrow';
@@ -5398,6 +5415,66 @@ function devInit(){
     senGesture(b,{tap:()=>devToggle(k),end:(st,cancel)=>{if(!cancel)devSheet(k);}});});
   devSync();
 }
+
+/* SANDBOX r7 — shot strip: the Field distance control + angle / wind (/ cant) buttons on the Advanced
+   and Wind pages, replacing their own copies of those inputs. Everything writes the session (distance,
+   Home's angle and cant fields, session wind) through the same paths as Home; the solver's old fields
+   stay in the DOM, hidden, and are mirrored from the session before each solve. */
+const STRIPS={traj:{wind:true},solver:{wind:true,cant:true},wind:{wind:false}};
+function stripMirror(){
+  const set=(id,v)=>{const e=document.getElementById(id);if(e&&document.activeElement!==e)e.value=String(v);};
+  const ha=document.getElementById('home-angle'),hc=document.getElementById('home-cant');
+  set('sv-tdist',S.dist_m);set('sv-angle',ha?(+ha.value||0):0);set('sv-cant',hc?(+hc.value||0):0);set('sv-wind',S.wind.speed);set('sv-wdir',S.wind.dir);
+}
+function stripAfter(){
+  stripMirror();const p=curPage();
+  if(p==='solver')solve();else if(p==='wind'){const sp=document.getElementById('wd-spd'),di=document.getElementById('wd-dir');if(sp)sp.value=S.wind.speed;if(di)di.value=S.wind.dir;renderWind();}
+  fieldSync();
+}
+function stripInit(){
+  Object.entries(STRIPS).forEach(([pg,o])=>{
+    const page=document.getElementById('page-'+pg);if(!page||page.querySelector('.sstrip'))return;
+    const el=(t,cls,txt)=>{const e=document.createElement(t);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e;};
+    const box=el('div','sstrip');box.dataset.strip=pg;
+    const d=el('button','fdist-v sstrip-d');d.type='button';d.setAttribute('aria-label','Distance — tap to type, hold and drag to adjust');
+    const num=el('span','fdist-num');num.append(el('span','sd-val','—'),el('span','fdist-u sd-unit',''));d.append(el('span','sstrip-l','Distance'),num,el('span','fdist-hint','⇕'));
+    const row=el('div','sstrip-row');
+    const b=(cls,txt,fn)=>{const x=el('button','fdist-sub '+cls,txt);x.type='button';x.onclick=fn;row.appendChild(x);};
+    b('sd-angle','Angle 0°',()=>openAngleSheet('angle'));
+    if(o.wind)b('sd-wind','Wind —',openWindSheet);
+    if(o.cant)b('sd-cant','Cant 0°',()=>openAngleSheet('cant'));
+    box.append(d,row);
+    const anchor=page.querySelector('.outcard');if(anchor)anchor.after(box);else page.prepend(box);
+    senGesture(d,{tap:()=>pickSheet('dist'),hold:st=>{st.box=box;fdHold(st);},drag:fdDrag,end:fdEnd});
+  });
+  fieldSync();
+}
+// session wind, typed: pauses live wind first (as the Weather pill does), so the next Calypso reading can't overwrite it
+function openWindSheet(){
+  openSheet('<h3>Wind</h3>');
+  const box=document.getElementById('sbox'),el=(t,cls,txt)=>{const e=document.createElement(t);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e;};
+  const g=el('div','fgrid');
+  const f1=el('div','fld'),l1=el('label',null,'Speed'),i1=el('input');i1.type='number';i1.id='sh-wspd';i1.step='0.1';i1.min='0';i1.dataset.q='wind';i1.value=String(S.wind.speed);f1.append(l1,i1);
+  const f2=el('div','fld'),l2=el('label',null,'From ° (0 head · 90 right · 180 tail · 270 left)'),i2=el('input');i2.type='number';i2.id='sh-wdir';i2.step='5';i2.value=String(Math.round(S.wind.dir));f2.append(l2,i2);
+  g.append(f1,f2);box.appendChild(g);
+  if(wxFeeding())box.appendChild(el('div','note','Live wind is on: setting a wind here pauses it (tap Weather to resume).'));
+  const set=()=>{const sp=parseFloat(i1.value),dr=parseFloat(i2.value);if(isNaN(sp)||isNaN(dr))return;
+    if(wxFeeding())toggleHomeLive();Bus.setWind(Math.max(0,sp),((dr%360)+360)%360,'manual');devSync();stripAfter();renderQuick();closeSheet();};
+  [i1,i2].forEach(i=>i.addEventListener('keydown',e=>{if(e.key==='Enter')set();}));
+  const row=el('div','btnrow'),ok=el('button','btn primary','Set'),no=el('button','btn','Cancel');ok.type=no.type='button';ok.onclick=set;no.onclick=closeSheet;row.append(ok,no);box.appendChild(row);
+  setTimeout(()=>{try{i1.focus();i1.select();}catch(e){}},50);
+}
+// one session line for every page but Home (the chip bar overflowed: Weather, Wind, Distance off-screen)
+function sesSync(){
+  const t=document.getElementById('ses-txt');if(!t)return;
+  const r=getRifle(),p=getProj(),cw=getWx(S.curWxId),tc=S.ct??cw?.temp;
+  t.replaceChildren();
+  const l1=document.createElement('span');l1.textContent=[r?r.name:'Choose rifle',p?p.name:'projectile'].join(' · ');
+  const l2=document.createElement('span');l2.className='ses-2';
+  // line 2 = what changes shot to shot; the weather profile's name is in the picker sheet
+  l2.textContent=[S.mv?ut('vel',S.mv):null,tc!=null?ut('temp',tc):'no weather',ut('wind',S.wind.speed)+' @ '+Math.round(S.wind.dir)+'°'+(S.wind.source==='calypso'?' ⊙':''),ut('range',S.dist_m)].filter(Boolean).join(' · ');
+  t.append(l1,l2);
+}
 /* SANDBOX r6 — Advanced: the Trajectory and Solver pages behind one bottom tab, as two sub-tabs.
    The pages themselves are unchanged (every gotoPage('traj'/'solver') still works); the tab reopens
    the sub-tab used last and stays lit on both. */
@@ -5418,11 +5495,14 @@ function fieldSync(statusMsg){
   if(statusMsg!=null)set('fa-status',statusMsg);
   const r=getRifle(),p=getProj(),cw=getWx(S.curWxId),t=S.ct??cw?.temp;
   set('fsum-txt',[r?r.name:'Choose rifle',p?p.name:'projectile',S.mv?ut('vel',S.mv):null,t!=null?ut('temp',t):null].filter(Boolean).join(' · '));
-  const grab=document.getElementById('home-distance')?.classList.contains('grab');
+  const grab=!!document.querySelector('#home-distance.grab,.sstrip.grab');
   if(!grab)fdShow(Math.round(fdToDisp(S.dist_m)));
   set('fd-unit',lab('range',fdUnit()));
-  const ang=document.getElementById('home-angle');set('fd-angle','Angle '+(ang?(+ang.value||0):0)+'°');
-  set('fd-wind','Wind '+ut('wind',S.wind.speed)+' @ '+Math.round(S.wind.dir)+'°'+(S.wind.source==='calypso'?' ⊙':''));
+  const ang=document.getElementById('home-angle'),cnt=document.getElementById('home-cant');
+  const aT='Angle '+(ang?(+ang.value||0):0)+'°',wT='Wind '+ut('wind',S.wind.speed)+' @ '+Math.round(S.wind.dir)+'°'+(S.wind.source==='calypso'?' ⊙':''),cT='Cant '+(cnt?(+cnt.value||0):0)+'°';
+  set('fd-angle',aT);set('fd-wind',wT);
+  const all=(sel,t)=>document.querySelectorAll(sel).forEach(e=>{e.textContent=t;});   // r7: every shot strip
+  all('.sd-unit',lab('range',fdUnit()));all('.sd-angle',aT);all('.sd-wind','≋ '+wT.slice(5));all('.sd-cant',cT);   // strips: ≋ instead of the word, so it fits beside cant
   // §20E: a distance that no longer matches the last ranging is a manual override
   const src=document.getElementById('fd-src');
   if(src){const f=typeof rfFilled!=='undefined'?rfFilled:null,same=f&&Math.abs(S.dist_m-f.m)<0.05;
@@ -5433,7 +5513,8 @@ function fieldInit(){
   const b=document.getElementById('fd-btn');
   if(b&&!b._g){b._g=true;senGesture(b,{tap:()=>pickSheet('dist'),hold:fdHold,drag:fdDrag,end:fdEnd});}
   hdrPage(curPage());fieldSync();
-  if(!fieldInit._done){fieldInit._done=true;backInit();kbInit();devInit();divInit();helpSync();}   // SANDBOX r2 + r3 + r5
+  if(!fieldInit._done){fieldInit._done=true;backInit();kbInit();devInit();divInit();helpSync();stripInit();sesSync();   // SANDBOX r2 + r3 + r5 + r7
+    Bus.on(()=>{if(curPage()==='holds')renderHolds();});}   // r7: Holds follows the session like the other pages
 }
 
 /* ── benchrest modules ── */

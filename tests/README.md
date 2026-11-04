@@ -149,6 +149,9 @@ npm install jsdom fake-indexeddb --prefix /tmp/jsdom
 
 # SEN-sandbox r5: help text behind ⓘ, unit presets
 (cd tests && NODE_PATH=/tmp/jsdom/node_modules node helptest.js ../index.html)
+
+# SEN-sandbox r7: shot strip on Advanced / Wind, live Holds, session bar, rounded pressure
+(cd tests && NODE_PATH=/tmp/jsdom/node_modules node striptest.js ../index.html)
 ```
 
 ## Provenance
