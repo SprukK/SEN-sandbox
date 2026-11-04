@@ -146,6 +146,9 @@ npm install jsdom fake-indexeddb --prefix /tmp/jsdom
 
 # SEN-sandbox r4: type scale + tap sizes on every page, real Chromium (Playwright, as rendertest.js)
 (cd tests && NODE_PATH=/tmp/jsdom/node_modules:/opt/npm-tools/node_modules node typetest.js ../index.html)
+
+# SEN-sandbox r5: help text behind ⓘ, unit presets
+(cd tests && NODE_PATH=/tmp/jsdom/node_modules node helptest.js ../index.html)
 ```
 
 ## Provenance

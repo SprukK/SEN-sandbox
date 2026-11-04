@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0a0b0e">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
-<title>SEN Sandbox V2.10.0-r4</title>
+<title>SEN Sandbox V2.10.0-r5</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Archivo:wght@500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
@@ -418,7 +418,7 @@ textarea{min-height:96px}
 .navbar button,html.fold .navbar button{font-size:12px}
 .navbar button .ni{font-size:18px}
 .navsheet button{font-family:var(--sans);font-size:14px;min-height:56px}
-details.disc>summary{font-size:13px}
+details.disc>summary{font-size:13px;font-family:var(--sans);text-transform:none;letter-spacing:.01em}   /* r5: sentence case like the other labels */
 .srcbtn{position:relative;font-family:var(--sans);font-size:12px;padding:3px 8px}
 .srcbtn::after{content:'';position:absolute;inset:-14px -8px}   /* invisible 44 px hit area, same look */
 .pacts,.lay-row>div:last-child{flex-wrap:wrap}
@@ -426,7 +426,20 @@ details.disc>summary{font-size:13px}
 html.fold #sol-rail,html.fold:not(.pane-none) #pane-div{bottom:calc(68px + env(safe-area-inset-bottom))}   /* the bottom nav grew with its 12 px labels: the rail ends above it */
 .pitem{flex-wrap:wrap}.pitem>:first-child{flex:1 1 140px;min-width:0}   /* row actions drop under the name when the row is narrow */
 .fx-nm,.fx-nm li{font-size:13px;line-height:1.5}
-.panel h2:has(> .btn-xs){display:flex;justify-content:space-between;align-items:center;gap:8px}
+.panel h2:has(> .btn-xs),.panel h2:has(> .help-btn){display:flex;justify-content:space-between;align-items:center;gap:8px}
+/* SANDBOX r5 — help text behind ⓘ: static explanations (.hlp) hidden until the panel's ⓘ is tapped */
+html:not(.help-all) .panel:not(.help-open) .hlp,html:not(.help-all) .hlp.solo:not(.help-open){display:none}
+.help-btn{flex-shrink:0;margin-left:auto;min-width:48px;min-height:48px;border-radius:24px;background:transparent;border:1px solid var(--border);color:var(--text3);font-family:Georgia,'Times New Roman',serif;font-style:italic;font-weight:700;font-size:19px;line-height:1;text-transform:none;letter-spacing:0}
+.help-btn.solo{display:flex;align-items:center;gap:8px;margin:8px 0 0;padding:0 14px;font-size:15px}
+.help-open>h2>.help-btn,.help-btn.on{color:var(--accent);border-color:var(--accent)}
+html.help-all .help-btn{display:none}
+.utbl{width:100%;border-collapse:collapse;font-family:var(--sans)}
+.utbl th{text-align:left;font-size:13px;color:var(--text2);padding:6px 8px 6px 0;font-weight:500;white-space:normal}
+.utbl thead th{font-size:12px;color:var(--text3)}
+.utbl td{padding:4px 0 4px 6px;width:34%}
+.utbl select{width:100%;padding:8px 6px}
+.ulock{font-size:13px;color:var(--text3)}
+#u-preset{margin-bottom:6px}
 .panel h2 > .btn-xs{float:none!important}   /* the taller + Add no longer floats into the list below it */
 </style>
 </head>
@@ -670,7 +683,7 @@ html.fold #sol-rail,html.fold:not(.pane-none) #pane-div{bottom:calc(68px + env(s
   </div>
 
   <div class="btnrow"><button class="btn primary" onclick="runTraj(false)">Recompute</button></div>
-  <div class="note">The solution updates automatically whenever the session changes — Recompute is a manual refresh, never a prerequisite. Max range extends itself to cover the target and zero.</div>
+  <div class="note hlp">The solution updates automatically whenever the session changes — Recompute is a manual refresh, never a prerequisite. Max range extends itself to cover the target and zero.</div>
 
   <div class="chartbox" style="margin-top:12px"><canvas id="tr-chart"></canvas></div>
   <div class="tablebox"><div class="ct">Drop table · clicks relative to zero range</div><table><thead><tr><th>Range</th><th>Drop <span data-ul="drop">mm</span></th><th>mrad</th><th>MOA</th><th>Clicks</th><th>V <span data-ul="vel">m/s</span></th><th>Mach</th><th>E <span data-ul="energy">J</span></th><th>TOF s</th></tr></thead><tbody id="tr-tbody"></tbody></table><div class="note" id="tr-tnote"></div></div>
@@ -690,7 +703,7 @@ html.fold #sol-rail,html.fold:not(.pane-none) #pane-div{bottom:calc(68px + env(s
       <div class="fld"><label>Pressure hPa</label><input type="number" id="tu-pres" step="1" value="1010"></div>
       <div class="fld"><label>RH %</label><input type="number" id="tu-rh" step="1" value="65"></div>
     </div>
-    <div class="note" style="margin-top:6px">Enter measured velocity at one or more downrange distances. <b>2 points</b> (V₀ + one) → single trued BC. <b>3+ points</b> → velocity-banded BC. Use averaged shot-string values, not single shots. Set the LabRadar to its real-measurement limit (~<span data-uv="range|23">23 m</span>), never the interpolated zone.</div>
+    <div class="note hlp" style="margin-top:6px">Enter measured velocity at one or more downrange distances. <b>2 points</b> (V₀ + one) → single trued BC. <b>3+ points</b> → velocity-banded BC. Use averaged shot-string values, not single shots. Set the LabRadar to its real-measurement limit (~<span data-uv="range|23">23 m</span>), never the interpolated zone.</div>
     <div id="tu-points" style="margin-top:10px"></div>
     <div class="btnrow"><button class="btn" onclick="tuAddPoint()">+ Add measured point</button><button class="btn primary" onclick="tuSolve()">True BC</button></div>
   </div>
@@ -705,7 +718,7 @@ html.fold #sol-rail,html.fold:not(.pane-none) #pane-div{bottom:calc(68px + env(s
     <div class="note" id="td-ctx" style="margin-top:0"></div>
     <div class="fld" style="max-width:220px"><label>Dial unit</label><select id="td-unit"><option value="click">clicks</option><option value="mrad">mrad</option><option value="moa">MOA</option></select></div>
     <div id="td-rows" style="margin-top:8px"></div>
-    <div class="note">Per distance: the dial (up from the turret zero, as the turret reads) that centred a 5-shot group, and where that group's centre landed (+ above the aim, − below). Use distances well beyond the zero — the zero distance itself says nothing about BC. More distances → one best-fit BC with a tighter range. MV (from the chrono), zero and air come from the current session and must be right.</div>
+    <div class="note hlp">Per distance: the dial (up from the turret zero, as the turret reads) that centred a 5-shot group, and where that group's centre landed (+ above the aim, − below). Use distances well beyond the zero — the zero distance itself says nothing about BC. More distances → one best-fit BC with a tighter range. MV (from the chrono), zero and air come from the current session and must be right.</div>
     <div class="btnrow"><button class="btn" onclick="tdAddRow()">+ Add distance</button><button class="btn primary" onclick="tdSolve()">True BC from impacts</button></div>
     <div id="td-result"></div>
   </div>
@@ -725,7 +738,7 @@ html.fold #sol-rail,html.fold:not(.pane-none) #pane-div{bottom:calc(68px + env(s
       <div class="fld"><label>BC G1 override</label><input type="number" id="bc-g1" step="0.001" placeholder="auto" oninput="calcBC()"></div>
       <div class="fld"><label>Type</label><select id="bc-type" onchange="calcBC()"><option value="slug">slug</option><option value="pellet">pellet</option></select></div>
     </div>
-    <div class="note">§9H: SD = mass_gr / (7000 · d_in²), no π/4 · BC G7 [kg/m²] = lb/in² × 703.07 · BC G1 ≈ BC G7 / 0.509 (Litz estimate)</div>
+    <div class="note hlp">§9H: SD = mass_gr / (7000 · d_in²), no π/4 · BC G7 [kg/m²] = lb/in² × 703.07 · BC G1 ≈ BC G7 / 0.509 (Litz estimate)</div>
   </div>
   <div class="tablebox" id="bc-benchbox"><div class="ct">vs Altaros Queen .25 benchmark (BC G7 0.128 lb/in² · 90.0 kg/m² · SD 0.137)</div><table><thead><tr><th>Metric</th><th>This</th><th>Queen</th><th>Δ %</th></tr></thead><tbody id="bc-bench"></tbody></table></div>
   <div class="panel" id="mvt-panel">
@@ -752,7 +765,7 @@ html.fold #sol-rail,html.fold:not(.pane-none) #pane-div{bottom:calc(68px + env(s
       <div class="fld"><label>Step m</label><input type="number" id="hd-step" step="1" value="5" oninput="renderHolds()"></div>
       <div class="fld"><label>Ref crosswind m/s</label><input type="number" id="hd-wind" step="0.5" value="2.5" oninput="renderHolds()"></div>
     </div>
-    <div class="note">Assumes the turret is AT ZERO (no dialing) and full-value crosswind for the wind column. Uses the active session (rifle · projectile · current weather) at <span data-uv="range|1">1 m</span> resolution. Reticle marks are measured DOWN from center on the active scope's reticle.</div>
+    <div class="note hlp">Assumes the turret is AT ZERO (no dialing) and full-value crosswind for the wind column. Uses the active session (rifle · projectile · current weather) at <span data-uv="range|1">1 m</span> resolution. Reticle marks are measured DOWN from center on the active scope's reticle.</div>
     <div class="btnrow"><button class="btn primary" onclick="renderHolds()">Compute</button><button class="btn" onclick="printHolds()">Print</button></div>
   </div>
   <div id="hd-flags"></div>
@@ -782,7 +795,7 @@ html.fold #sol-rail,html.fold:not(.pane-none) #pane-div{bottom:calc(68px + env(s
       <div class="fld"><label>Temp °C</label><input type="number" id="st-temp" step="0.5" value="-5" oninput="calcStab()"></div>
       <div class="fld"><label>Pressure hPa</label><input type="number" id="st-pres" step="1" value="1013" oninput="calcStab()"></div>
     </div>
-    <div class="note">Miller twist rule — the formula behind Berger's twist-rate calculator (matches it: Queen 1.18, King 1.07/1.48/1.67). Fitted on rifle bullets; not validated for airgun hollow points or below L/D 2.0. Pellets are drag-stabilised (no Sg). Worst-case column uses <span data-uv="temp|-5">−5°C</span> · <span data-uv="pres|1013">1013 hPa</span> · <span data-uv="vel|229">229 m/s</span> (global barrel spec).</div>
+    <div class="note hlp">Miller twist rule — the formula behind Berger's twist-rate calculator (matches it: Queen 1.18, King 1.07/1.48/1.67). Fitted on rifle bullets; not validated for airgun hollow points or below L/D 2.0. Pellets are drag-stabilised (no Sg). Worst-case column uses <span data-uv="temp|-5">−5°C</span> · <span data-uv="pres|1013">1013 hPa</span> · <span data-uv="vel|229">229 m/s</span> (global barrel spec).</div>
   </div>
   <div class="tablebox" id="st-twbox"><div class="ct">Twist recommender · min twist for Sg target at global worst-case</div><table><thead><tr><th>Sg target</th><th>Min twist (in)</th><th>= mm</th><th>This barrel</th></tr></thead><tbody id="st-twist-tbl"></tbody></table></div>
   <div class="panel" id="st-mcg">
@@ -797,7 +810,7 @@ html.fold #sol-rail,html.fold:not(.pane-none) #pane-div{bottom:calc(68px + env(s
     </div>
     <div class="scs" id="st-mcg-outs"></div>
     <div id="st-mcg-flags"></div>
-    <div class="note">McCoy's empirical estimate from the shape (nose length, ogive Rt/R: 1 = round nose or tangent ogive, 0 = cone; meplat and base diameter). Uniform density assumed. McCoy gives ±5 % (1 SD) below Mach 0.95. McGyro's own output is for standard sea-level air; "your air" scales it by air density (dry, like Miller's correction). Home and the BC penalty keep using Miller until range tests decide.</div>
+    <div class="note hlp">McCoy's empirical estimate from the shape (nose length, ogive Rt/R: 1 = round nose or tangent ogive, 0 = cone; meplat and base diameter). Uniform density assumed. McCoy gives ±5 % (1 SD) below Mach 0.95. McGyro's own output is for standard sea-level air; "your air" scales it by air density (dry, like Miller's correction). Home and the BC penalty keep using Miller until range tests decide.</div>
   </div>
 </div>
 
@@ -899,7 +912,7 @@ html.fold #sol-rail,html.fold:not(.pane-none) #pane-div{bottom:calc(68px + env(s
     <div class="fld" style="margin-top:8px"><label>Wind from</label><div class="seg"><button id="sv-ws-in" class="on" onclick="svSetStations(false)">The inputs above</button><button id="sv-ws-st" onclick="svSetStations(true)">Live wind stations</button></div></div>
     <div class="note" id="sv-ws-note"></div>
     <div class="note" id="rf-src-sv"></div>
-    <div class="note">Clicks relative to zero range (zero = 0 by construction). Angle: the trajectory is re-solved along the slope (slant range); a head/tailwind component is integrated too. Wind clicks are the delta vs the wind already held at zero range.</div>
+    <div class="note hlp">Clicks relative to zero range (zero = 0 by construction). Angle: the trajectory is re-solved along the slope (slant range); a head/tailwind component is integrated too. Wind clicks are the delta vs the wind already held at zero range.</div>
     <div class="btnrow"><button class="btn primary" onclick="solve()">Solve</button></div>
   </div>
   <div class="panel">
@@ -911,7 +924,7 @@ html.fold #sol-rail,html.fold:not(.pane-none) #pane-div{bottom:calc(68px + env(s
       <div class="fld"><label>Spin drift (Litz EST ⚠)</label><div class="seg"><button id="sv-sd-off" onclick="svSetSpin(false)">Off</button><button id="sv-sd-on" onclick="svSetSpin(true)">On</button></div></div>
       <div class="fld"><label>Aerodynamic jump (Litz EST ⚠)</label><div class="seg"><button id="sv-aj-off" onclick="svSetAJ(false)">Off</button><button id="sv-aj-on" onclick="svSetAJ(true)">On</button></div></div>
     </div>
-    <div class="note">Coriolis is exact physics (integrated over the actual RK4 trajectory) — negligible below ~<span data-uv="range|300">300 m</span>, grows with TOF. Spin drift uses the Litz empirical fit (1.25·(Sg+1.2)·TOF^1.83) derived from SUPERSONIC rifle bullets — <b>unvalidated for subsonic slugs</b>; treat as an estimate until field-verified. When ON, corrections are included in the dial above and itemised in the flags. n/a for pellets and smooth bores.</div>
+    <div class="note hlp">Coriolis is exact physics (integrated over the actual RK4 trajectory) — negligible below ~<span data-uv="range|300">300 m</span>, grows with TOF. Spin drift uses the Litz empirical fit (1.25·(Sg+1.2)·TOF^1.83) derived from SUPERSONIC rifle bullets — <b>unvalidated for subsonic slugs</b>; treat as an estimate until field-verified. When ON, corrections are included in the dial above and itemised in the flags. n/a for pellets and smooth bores.</div>
   </div>
 </div>
 
@@ -995,7 +1008,7 @@ html.fold #sol-rail,html.fold:not(.pane-none) #pane-div{bottom:calc(68px + env(s
     </div>
     <div id="cal-units"></div>
     <div class="btnrow" id="cal-add" style="display:none;margin-top:4px"><button class="btn-xs" onclick="calAdd()">+ Connect another Calypso</button></div>
-    <div class="note" style="margin-top:2px">The unit marked “feeds session” supplies the session wind (Home, Wind, Solver). Any others stream alongside — place them as wind stations in the panel below. Values below are the session unit's.</div>
+    <div class="note hlp" style="margin-top:2px">The unit marked “feeds session” supplies the session wind (Home, Wind, Solver). Any others stream alongside — place them as wind stations in the panel below. Values below are the session unit's.</div>
     <div id="ble-live-wrap" style="display:none">
       <div class="scs">
         <div class="sc accent"><div class="sl">Speed (instant)</div><div class="sv" id="ble-speed">—</div><div class="su" data-ul="wind">m/s</div></div>
@@ -1018,7 +1031,7 @@ html.fold #sol-rail,html.fold:not(.pane-none) #pane-div{bottom:calc(68px + env(s
       <div class="fld"><button class="btn-xs" onclick="captureCalMount()">📍 Phone compass</button></div>
     </div>
     <div class="note" id="cal-mount-note"></div>
-    <div class="flag info" style="margin-top:10px">Live wind via the proven activation handshake (Handoff V3). Session uses the app's own <b>average</b> of the instant readings over the window you choose (the Calypso's built-in average is not used — its window is unknown). Keep the Calypso in the same orientation for the whole window; after moving it, tap Reset average. This device measures wind only — temperature/humidity come from manual entry or an online source, not the Calypso.</div>
+    <div class="flag hlp info" style="margin-top:10px">Live wind via the proven activation handshake (Handoff V3). Session uses the app's own <b>average</b> of the instant readings over the window you choose (the Calypso's built-in average is not used — its window is unknown). Keep the Calypso in the same orientation for the whole window; after moving it, tap Reset average. This device measures wind only — temperature/humidity come from manual entry or an online source, not the Calypso.</div>
   </div>
   <div class="panel" id="stn-panel">
     <h2>Wind stations</h2>
@@ -1031,7 +1044,7 @@ html.fold #sol-rail,html.fold:not(.pane-none) #pane-div{bottom:calc(68px + env(s
     <div id="stn-list"></div>
     <div class="btnrow"><button class="btn-xs" onclick="stnAdd()">+ Add station</button></div>
     <div class="note" id="stn-summary"></div>
-    <div class="note">Each station: a name, which Calypso, its distance from you and its angle off the line of fire (0 = on the line, + right, − left), and where its mark points — at the target, or at north (the same magnetic compass as the target bearing on Home; needs that bearing). With two or more live stations and live wind on, Home's dial and windage use all of them along the flight (crosswind and head/tailwind). Otherwise Home uses the session unit, exactly as before. A station with no reading for 3 s drops out.</div>
+    <div class="note hlp">Each station: a name, which Calypso, its distance from you and its angle off the line of fire (0 = on the line, + right, − left), and where its mark points — at the target, or at north (the same magnetic compass as the target bearing on Home; needs that bearing). With two or more live stations and live wind on, Home's dial and windage use all of them along the flight (crosswind and head/tailwind). Otherwise Home uses the session unit, exactly as before. A station with no reading for 3 s drops out.</div>
   </div>
   <div class="panel" id="rf-panel">
     <h2>Rangefinder · Element Titan / Helix</h2>
@@ -1043,7 +1056,7 @@ html.fold #sol-rail,html.fold:not(.pane-none) #pane-div{bottom:calc(68px + env(s
     <div class="fld" style="margin-top:8px"><label>Each ranging fills target distance + shot angle</label>
       <div class="seg"><button id="rf-fill-on" onclick="rfSetFill(true)">On</button><button id="rf-fill-off" onclick="rfSetFill(false)">Off</button></div></div>
     <div class="note" id="rf-last"></div>
-    <div class="flag info" style="margin-top:10px">Keep the rangefinder in <b>LOS</b> mode: it sends the distance of the mode on its display and the frame doesn't say which (owner tests 2026-10-30). The solver works in slant range, which is LOS. The rangefinder always sends a metric distance with one decimal, whatever its own display unit, and the app shows it in yours; the angle comes in whole degrees. Nothing is written to the rangefinder. Typing a distance or angle overrides the ranging until the next one.</div>
+    <div class="flag hlp info" style="margin-top:10px">Keep the rangefinder in <b>LOS</b> mode: it sends the distance of the mode on its display and the frame doesn't say which (owner tests 2026-10-30). The solver works in slant range, which is LOS. The rangefinder always sends a metric distance with one decimal, whatever its own display unit, and the app shows it in yours; the angle comes in whole degrees. Nothing is written to the rangefinder. Typing a distance or angle overrides the ranging until the next one.</div>
   </div>
   <div class="panel">
     <h2>Manual wind entry</h2>
@@ -1062,7 +1075,7 @@ html.fold #sol-rail,html.fold:not(.pane-none) #pane-div{bottom:calc(68px + env(s
       <div class="sc"><div class="sl">Battery</div><div class="sv" id="lr-batt" style="font-size:16px">—</div><div class="su">%</div></div>
     </div>
     <div class="note" id="lr-note"></div>
-    <div class="flag info" style="margin-top:10px">Each shot's <b>V₀</b> is added live to the shot string below. Arm and stop on the LabRadar as usual. Only V₀ is taken: the projectile mass, power factor and BC typed into the LabRadar are ignored (your projectile profile is used), and its velocity at the distance point is not used because the LabRadar extrapolates it when its track ends short (owner ruling 2026-10-31). The app sends the LabRadar app's own start sequence and a status check every 10 s.</div>
+    <div class="flag hlp info" style="margin-top:10px">Each shot's <b>V₀</b> is added live to the shot string below. Arm and stop on the LabRadar as usual. Only V₀ is taken: the projectile mass, power factor and BC typed into the LabRadar are ignored (your projectile profile is used), and its velocity at the distance point is not used because the LabRadar extrapolates it when its track ends short (owner ruling 2026-10-31). The app sends the LabRadar app's own start sequence and a status check every 10 s.</div>
   </div>
   <div class="panel">
     <h2>Chronograph · shot string + MV (Garmin Xero C1 Pro)</h2>
@@ -1073,7 +1086,7 @@ html.fold #sol-rail,html.fold:not(.pane-none) #pane-div{bottom:calc(68px + env(s
     <div class="fgrid3"><div class="fld"><label>MV m/s</label><input type="number" id="ch-mv" step="0.1"></div><div class="fld"><label>ES m/s</label><input type="number" id="ch-es" step="0.1"></div><div class="fld"><label>SD m/s</label><input type="number" id="ch-sd" step="0.1"></div></div>
     <div class="btnrow"><button class="btn" onclick="useChronoMV()">Use MV → session</button></div>
     <div id="ch-flags"></div>
-    <div class="note">Production target: ES ≤ <span data-uv="vel|5">5 m/s</span> · SD ≤ <span data-uv="vel|1.5">1.5 m/s</span> over 10 shots. LabRadar V₀+V_D BC back-calc lives in the BC / Truing tab.</div>
+    <div class="note hlp">Production target: ES ≤ <span data-uv="vel|5">5 m/s</span> · SD ≤ <span data-uv="vel|1.5">1.5 m/s</span> over 10 shots. LabRadar V₀+V_D BC back-calc lives in the BC / Truing tab.</div>
   </div>
 </div>
 
@@ -1093,7 +1106,7 @@ html.fold #sol-rail,html.fold:not(.pane-none) #pane-div{bottom:calc(68px + env(s
   <div class="panel">
     <div class="ph"><h2>Formula verification · §20A</h2><span class="psub">every formula, its source and its anchors — recomputed live</span></div>
     <div class="note" id="fx-sum" style="margin-top:0"></div>
-    <div class="note">Anchors are real projectiles and published references only. Values stay in each formula's own units — they are reference constants, not field output. The same check runs at every start; a failure shows a warning on every screen.</div>
+    <div class="note hlp">Anchors are real projectiles and published references only. Values stay in each formula's own units — they are reference constants, not field output. The same check runs at every start; a failure shows a warning on every screen.</div>
   </div>
   <div id="fx-list"></div>
 </div>
@@ -1102,7 +1115,7 @@ html.fold #sol-rail,html.fold:not(.pane-none) #pane-div{bottom:calc(68px + env(s
 <div class="page" id="page-settings">
   <div id="settings-body"></div>
   <div class="btnrow"><button class="btn" id="reload-btn" onclick="reloadApp()">Reload app</button></div>
-  <div class="note">SEN Sandbox V2.10.0-r4 · UI fork of SEN Ballistics V2.10.0 (physics unchanged) · RTI Mora Sniper · RK4 G7/G1 · single-file PWA · github.com/SprukK/SEN-sandbox</div>
+  <div class="note">SEN Sandbox V2.10.0-r5 · UI fork of SEN Ballistics V2.10.0 (physics unchanged) · RTI Mora Sniper · RK4 G7/G1 · single-file PWA · github.com/SprukK/SEN-sandbox</div>
 </div>
 
 <!-- profile modals -->
@@ -1847,22 +1860,27 @@ function renderSettings(){
       <div class="seg"><button class="${APP.contrast!=='high'?'on':''}" onclick="setApp('contrast','normal')">Normal</button><button class="${APP.contrast==='high'?'on':''}" onclick="setApp('contrast','high')">High</button></div></div>
     <div class="fld" style="margin-top:10px"><label>Text size</label>
       <div class="seg"><button class="${APP.fontScale==='m'?'on':''}" onclick="setApp('fontScale','m')">Normal</button><button class="${APP.fontScale==='l'?'on':''}" onclick="setApp('fontScale','l')">Large</button><button class="${APP.fontScale==='xl'?'on':''}" onclick="setApp('fontScale','xl')">XL</button></div></div>
+    <div class="fld" style="margin-top:10px"><label>Help text</label>
+      <div class="seg" id="help-mode"><button class="${APP.helpAll!==true?'on':''}" onclick="setApp('helpAll',false)">Behind <i>i</i></button><button class="${APP.helpAll===true?'on':''}" onclick="setApp('helpAll',true)">Always show</button></div></div>
     <div class="note" id="screen-info">${screenInfo()}</div>
-    <div class="note">Dual-unit shows a muted secondary value after the primary in big output cards and the home widget. Tables stay single-unit for legibility.</div></div>`;
+    <div class="note hlp">Dual-unit shows a muted secondary value after the primary in big output cards and the home widget. Tables stay single-unit for legibility.</div></div>`;
   // field block (FIX-14a)
   html+=`<div class="panel"><h2>Field</h2>
     <div class="fld"><label>Keep screen awake (live wind / dope use)</label>
       <div class="seg"><button class="${APP.wakeLock?'on':''}" onclick="setWakeLock(true)">On</button><button class="${!APP.wakeLock?'on':''}" onclick="setWakeLock(false)">Off</button></div></div>
     <div class="note" id="wl-status">Wake lock: ${APP.wakeLock?(_wl?'active — screen stays on':'enabled — acquiring…'):'off'}</div></div>`;
-  // units block
-  html+=`<div class="panel"><h2>Units · primary / secondary</h2><div class="note" style="margin-bottom:12px">Canonical storage is always metric. Primary sets the working unit; secondary (optional) shows alongside in cards when dual-display is on.</div>`;
-  html+=Object.entries(QDEF).map(([k,d])=>{
-    const prim=Object.entries(d.opts).map(([ok,ol])=>`<button class="${UNITS[k]===ok?'on':''}" ${d.locked?'disabled':''} onclick="setUnit('${k}','${ok}')">${ol}</button>`).join('');
-    const secBtns=`<button class="${SUNITS[k]==='off'?'on':''}" onclick="setSec('${k}','off')">Off</button>`+Object.entries(d.opts).filter(([ok])=>ok!==UNITS[k]).map(([ok,ol])=>`<button class="${SUNITS[k]===ok?'on':''}" onclick="setSec('${k}','${ok}')">${ol}</button>`).join('');
-    return`<div style="margin-bottom:16px"><label style="font-size:13px;color:var(--text2)">${d.name}${d.locked?' · locked':''}</label>
-      <div class="seg" style="margin-top:6px">${prim}</div>
-      ${d.locked?'':`<label style="font-size:12px;color:var(--text3);margin-top:6px;display:block">Secondary</label><div class="seg" style="margin-top:4px">${secBtns}</div>`}</div>`;
-  }).join('')+`</div>`;
+  // units block — SANDBOX r5: Metric / Imperial presets + a compact per-unit table (folded unless custom)
+  {const pre=unitPreset(),opt=(o,v,l)=>`<option value="${o}"${o===v?' selected':''}>${l}</option>`;
+   const rows=Object.entries(QDEF).map(([k,d])=>{
+     const prim=d.locked?`<span class="ulock">${d.opts[UNITS[k]]} · locked</span>`:`<select aria-label="${d.name} — primary" onchange="setUnit('${k}',this.value)">${Object.entries(d.opts).map(([o,l])=>opt(o,UNITS[k],l)).join('')}</select>`;
+     const sec=d.locked?'':`<select aria-label="${d.name} — secondary" onchange="setSec('${k}',this.value)">${opt('off',SUNITS[k],'—')}${Object.entries(d.opts).filter(([o])=>o!==UNITS[k]).map(([o,l])=>opt(o,SUNITS[k],l)).join('')}</select>`;
+     return`<tr><th scope="row">${d.name}</th><td>${prim}</td><td>${sec}</td></tr>`;}).join('');
+   html+=`<div class="panel" id="units-panel"><h2>Units</h2>
+    <div class="seg" id="u-preset"><button class="${pre==='metric'?'on':''}" onclick="setUnitPreset('metric')">Metric</button><button class="${pre==='imperial'?'on':''}" onclick="setUnitPreset('imperial')">Imperial</button><button class="${pre?'':'on'}" onclick="document.getElementById('u-custom').open=true">Custom</button></div>
+    <div class="note" id="u-sum">${unitSummary(pre)}</div>
+    <details class="disc" id="u-custom"${pre?'':' open'}><summary>Each unit · primary / secondary</summary><div class="dbody">
+      <table class="utbl"><thead><tr><th></th><th>Primary</th><th>Secondary</th></tr></thead><tbody>${rows}</tbody></table></div></details>
+    <div class="note hlp">Storage is always metric; units only change what is shown and typed. Secondary (optional) appears after the primary in big output cards when dual display is on. Presets leave the angular unit (MRAD / MOA) as it is — it follows your scope.</div></div>`;}
   // calc block
   html+=`<div class="panel"><h2>Calculation</h2>
     <div class="fld"><label>Transonic warnings</label><div class="seg"><button class="${APP.transonicWarn?'on':''}" onclick="setApp('transonicWarn',true)">On</button><button class="${!APP.transonicWarn?'on':''}" onclick="setApp('transonicWarn',false)">Off</button></div></div>
@@ -1871,12 +1889,13 @@ function renderSettings(){
   html+=`<div class="panel"><h2>Scopes &amp; data</h2><div class="btnrow">
     <button class="btn" onclick="downloadScopePrompt()">Scope research prompt</button>
     <button class="btn danger" onclick="factoryReset()">Factory reset</button></div>
-    <div class="note">The scope research prompt is a file you hand to another chat with a scope SKU; it returns a SEN scope file you import under Profiles → Scopes → Import.</div></div>`;
+    <div class="note hlp">The scope research prompt is a file you hand to another chat with a scope SKU; it returns a SEN scope file you import under Profiles → Scopes → Import.</div></div>`;
   html+=`<div class="panel"><h2>Data storage</h2>
     <div class="note" id="store-info">Engine: ${_idb?'IndexedDB':'localStorage (fallback — about 5 MB, shared with the Lab app)'} · app data ${(storeBytes/1024).toFixed(0)} KB<br>
     Protection: ${storePersisted===true?'persistent — the browser will not clear it to free space':storePersisted===false?'not granted — the browser may clear it if the device runs low on space; installing the app usually grants it':'unknown'}<br>
     <span id="store-quota"></span></div></div>`;
   box.innerHTML=html;
+  helpSync();   // SANDBOX r5
   renderStoreQuota();
 }
 async function renderStoreQuota(){
@@ -1888,6 +1907,51 @@ async function renderStoreQuota(){
 }
 function setUnit(k,v){if(QDEF[k].locked)return;UNITS[k]=v;if(SUNITS[k]===v)SUNITS[k]='off';saveDB();renderSettings();rerenderAll();}
 function setSec(k,v){SUNITS[k]=v;saveDB();renderSettings();rerenderAll();}
+/* SANDBOX r5 — unit presets. Same per-quantity rule as setUnit (a secondary equal to the new primary
+   turns off), applied to the whole set, then one re-render. Angular (scope) and locked quantities untouched. */
+const UNIT_PRESETS={
+  metric:{range:'m',zrange:'m',drop:'mm',sight:'mm',vel:'ms',wind:'ms',temp:'c',pres:'hpa',energy:'j',bullet:'mm',tsize:'mm',alt:'m',regp:'bar'},
+  imperial:{range:'yd',zrange:'yd',drop:'in',sight:'in',vel:'fps',wind:'mph',temp:'f',pres:'inhg',energy:'ftlb',bullet:'in',tsize:'in',alt:'ft',regp:'psi'}};
+const unitPreset=()=>Object.keys(UNIT_PRESETS).find(n=>Object.entries(UNIT_PRESETS[n]).every(([k,v])=>QDEF[k].locked||UNITS[k]===v))||null;
+function unitSummary(pre){
+  if(pre)return(pre==='metric'?'Metric':'Imperial')+' · angular '+QDEF.ang.opts[UNITS.ang];
+  const diffs=n=>Object.keys(UNIT_PRESETS[n]).filter(k=>!QDEF[k].locked&&UNITS[k]!==UNIT_PRESETS[n][k]);
+  const near=diffs('metric').length<=diffs('imperial').length?'metric':'imperial',diff=diffs(near);   // describe against the closer preset
+  return'Custom · '+near+' except '+diff.map(k=>QDEF[k].name.toLowerCase()+' '+QDEF[k].opts[UNITS[k]]).join(', ')+' · angular '+QDEF.ang.opts[UNITS.ang];
+}
+/* SANDBOX r5 — help behind ⓘ. Every .hlp note gets a ⓘ in its panel's title (or a "How this works"
+   button just above it when it sits outside a panel). Closed by default; each panel remembers its own
+   state; Settings → Help text "Always show" opens them all. Idempotent: safe after any re-render. */
+function helpKey(box){
+  if(box.id)return box.id;
+  const h=box.querySelector&&box.querySelector('h2'),t=h?[...h.childNodes].filter(n=>n.nodeType===3).map(n=>n.textContent).join('').trim():'';
+  const pg=(box.closest('.page')||{id:''}).id;
+  return pg+':'+(t||[...document.querySelectorAll('.hlp')].indexOf(box));
+}
+function helpSync(){
+  if(typeof document==='undefined')return;
+  document.documentElement.classList.toggle('help-all',APP.helpAll===true);
+  const st=APP.help&&typeof APP.help==='object'?APP.help:{};
+  document.querySelectorAll('.hlp').forEach(n=>{
+    const panel=n.closest('.panel');let box=panel,btn;
+    if(!panel){n.classList.add('solo');box=n;}
+    if(!box._hb){
+      btn=document.createElement('button');btn.type='button';btn.className='help-btn'+(panel?'':' solo');
+      if(panel){btn.textContent='i';const h=panel.querySelector('h2');if(h)h.appendChild(btn);else panel.prepend(btn);}
+      else{btn.textContent='i  How this works';n.before(btn);}
+      btn.onclick=e=>{e.stopPropagation();const k=helpKey(box),o=APP.help&&typeof APP.help==='object'?APP.help:{};o[k]=!o[k];APP.help=o;saveDBSoon();helpSync();};
+      box._hb=btn;
+    }
+    const open=!!st[helpKey(box)];
+    box.classList.toggle('help-open',open);box._hb.classList.toggle('on',open);
+    box._hb.setAttribute('aria-expanded',String(open));box._hb.setAttribute('aria-label',open?'Hide help':'Show help');
+  });
+}
+function setUnitPreset(n){
+  const P=UNIT_PRESETS[n];if(!P)return;
+  Object.entries(P).forEach(([k,v])=>{if(QDEF[k].locked||!QDEF[k].opts[v])return;UNITS[k]=v;if(SUNITS[k]===v)SUNITS[k]='off';});
+  saveDB();renderSettings();rerenderAll();
+}
 function setApp(k,v){APP[k]=v;saveDB();if(k==='contrast'||k==='fontScale')applyDisplayPrefs();renderSettings();rerenderAll();}
 function rerenderAll(){refreshUnits();if(lastTraj){renderTraj();renderQuick();}renderActBar();syncTrajInputs();}
 function downloadScopePrompt(){
@@ -5354,7 +5418,7 @@ function fieldInit(){
   const b=document.getElementById('fd-btn');
   if(b&&!b._g){b._g=true;senGesture(b,{tap:()=>pickSheet('dist'),hold:fdHold,drag:fdDrag,end:fdEnd});}
   hdrPage(curPage());fieldSync();
-  if(!fieldInit._done){fieldInit._done=true;backInit();kbInit();devInit();divInit();}   // SANDBOX r2 + r3
+  if(!fieldInit._done){fieldInit._done=true;backInit();kbInit();devInit();divInit();helpSync();}   // SANDBOX r2 + r3 + r5
 }
 
 /* ── benchrest modules ── */

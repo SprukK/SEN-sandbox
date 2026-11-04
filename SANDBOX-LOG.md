@@ -5,6 +5,22 @@ Versions: `V{Main base}-r{n}`. Deploy set per release: `RTI-SEN-Ballistic-Calcul
 
 ---
 
+## V2.10.0-r5 — Help text behind ⓘ; unit presets
+
+**Problem.** UI review items 6 and 9: every panel explained itself in full, always (Sensors 444 words of notes, Solver 133, Stability 157), and Settings spent ~2,600 px on primary + secondary toggle rows for 15 quantities.
+
+**Change.**
+- **Help behind ⓘ.** 19 static explanations are marked as help (chosen one by one, not by length: live results, status lines, warnings, empty states and the shot-string format hint stay visible). Each panel holding help gets a round *i* button in its title (a "How this works" button where the help sits outside a panel). Closed by default; each panel remembers its own state; **Settings → Display → Help text: Behind i / Always show**.
+- **Units.** **Metric / Imperial / Custom** buttons with a one-line summary ("Metric · angular MRAD", or "Custom · imperial except range Meters"). The per-unit table (quantity · primary · secondary, as selects) folds away and opens by itself when the set is custom. Presets change every quantity except angular (it follows the scope) and the locked twist unit, with setUnit's rule (a secondary equal to the new primary turns off). Disclosure rows (e.g. "Turret dialed") now in sentence case like the other labels.
+
+**Measured** (outer screen, visible note words, Main V2.10.0 → r5): Sensors 444 → 61 · Solver 133 → 32 · Stability 157 → 41 · Truing 200 → 58 · Holds 50 → 9 · Settings 154 → 87; Settings height 3,299 → 1,631 px despite r4's larger type.
+
+**Files.** `index.html`, `RTI-SEN-Ballistic-Calculator-V2.10.0-r5-redesign.html` (identical), `sw.js` (CACHE `sen-sandbox-v2.10.0-r5`), `tests/helptest.js` (new, 22), `tests/README.md`. Main code touched: `renderSettings` units block replaced; `helpSync()` after it.
+
+**Verify.** All 31 Main suites + `fieldtest` 43 + `devicetest` 41 + `typetest` 18 + `helptest` 22 green; `runtests.js` unchanged 143/143. **On the Honor (owner):** which explanations you still want visible without the *i*.
+
+---
+
 ## V2.10.0-r4 — Type scale and 48 px tap targets
 
 **Problem.** UI review items 4 and 5: on the outer screen 1,218 of 1,323 visible texts were under 12 px (smallest 8 px, median 10 px, mostly spaced-out monospace capitals) and 281 of 296 controls were under 48 px tall (profile row actions 23 px, Settings toggles 36 px). Hard to read in sun and to hit with a cold thumb.
