@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0a0b0e">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
-<title>SEN Sandbox V2.10.0-r2</title>
+<title>SEN Sandbox V2.10.0-r3</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Archivo:wght@500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
@@ -301,6 +301,15 @@ html.fold.pane-none #sol-rail{display:none}
 /* results beside inputs get half the screen (the rail keeps its narrower width) */
 html.fold.pane-page body{padding-right:calc(min(50vw,600px) + 18px)}
 html.fold.pane-page #sol-rail{width:min(50vw,600px)}
+/* SANDBOX r3 — draggable divider between the panes; --rail-w (a share of the screen) once the user moved it */
+html.fold.split body{padding-right:calc(var(--rail-w) + 18px)}
+html.fold.split #sol-rail{width:var(--rail-w)}
+#pane-div{display:none}
+html.fold:not(.pane-none) #pane-div{display:flex;position:fixed;top:0;bottom:calc(64px + env(safe-area-inset-bottom));width:24px;margin-left:-12px;z-index:32;
+  align-items:center;justify-content:center;cursor:col-resize;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+#pane-div span{width:6px;height:56px;border-radius:3px;background:var(--border2);transition:background .12s,height .12s}
+#pane-div.drag span,#pane-div:hover span{background:var(--accent);height:84px}
+html.no-ptr,html.no-ptr body{overscroll-behavior-y:contain}   /* SANDBOX r3: no pull-to-refresh while a device is connected */
 /* CORE-16 layouts */
 .mod-off{display:none!important}
 #wt-body th{text-transform:none}
@@ -380,7 +389,7 @@ details.disc .dbody{padding:0 14px 14px}
   <div class="hpage" id="hdr-page">Home</div>
 </div>
 
-<aside id="sol-rail" aria-label="Second pane"><div class="pane-sw" id="pane-sw"></div><div class="rail-head" id="rail-head">—</div></aside><button class="btn-xs" id="pane-show" style="display:none" onclick="setPaneMode(curPage(),'rail')">◧ Solution</button>
+<div id="pane-div" role="separator" aria-orientation="vertical" aria-label="Drag to resize the panes, double-tap to reset"><span></span></div><aside id="sol-rail" aria-label="Second pane"><div class="pane-sw" id="pane-sw"></div><div class="rail-head" id="rail-head">—</div></aside><button class="btn-xs" id="pane-show" style="display:none" onclick="setPaneMode(curPage(),'rail')">◧ Solution</button>
 <div class="flag warn" id="store-warn" role="alert" style="display:none;margin:8px 12px 0"></div>
 <div class="flag warn" id="fx-alarm" role="alert" style="display:none;margin:8px 12px 0;color:var(--red);border-color:var(--red)"></div>
 <div class="flag warn" id="ios-hint" style="display:none;margin:8px 12px 0">On iPhone, add SEN to your Home Screen (Share → Add to Home Screen). Safari deletes the data of websites that aren't installed after 7 days without use. <button class="btn-xs" onclick="dismissIosHint()">Got it</button></div>
@@ -1044,7 +1053,9 @@ details.disc .dbody{padding:0 14px 14px}
 <!-- ═══════════ SETTINGS (D3) ═══════════ -->
 <div class="page" id="page-settings">
   <div id="settings-body"></div>
-  <div class="note">SEN Sandbox V2.10.0-r2 · UI fork of SEN Ballistics V2.10.0 (physics unchanged) · RTI Mora Sniper · RK4 G7/G1 · single-file PWA · github.com/SprukK/SEN-sandbox</div>
+  <div class="btnrow"><button class="btn" id="reload-btn" onclick="reloadApp()">Reload app</button></div>
+  <div class="note" id="back-diag">Back button: —</div>
+  <div class="note">SEN Sandbox V2.10.0-r3 · UI fork of SEN Ballistics V2.10.0 (physics unchanged) · RTI Mora Sniper · RK4 G7/G1 · single-file PWA · github.com/SprukK/SEN-sandbox</div>
 </div>
 
 <!-- profile modals -->
@@ -2435,7 +2446,7 @@ function renderActBar(){
 const MORE_PAGES=[['stab','Stability','Berger Sg · twist'],['bench','Design Bench','geometry · mass · SD'],['truing','BC / Truing','BC, SD, MV–temp'],
   ['holds','Holds','reticle holdover'],['profiles','Profiles','rifles, scopes, ammo'],
   ['sensors','Sensors','Calypso · chrono'],['layouts','Layouts','Home per match type'],['formulas','Formulas','§20A self-check'],['settings','Settings','units, display, field']];
-function openSheet(html){const sb=document.getElementById('sbox');delete sb.dataset.dev;sb.innerHTML='<div class="sgrab"></div>'+html;document.getElementById('sheet').classList.add('open');backGuard();}
+function openSheet(html){const sb=document.getElementById('sbox');delete sb.dataset.dev;sb.innerHTML='<div class="sgrab"></div>'+html;document.getElementById('sheet').classList.add('open');backArm();}
 function closeSheet(){document.getElementById('sheet').classList.remove('open');const b=document.getElementById('sbox');b.innerHTML='';delete b.dataset.dev;}
 function openMore(){
   const cur=document.querySelector('.page.active')?.id.replace('page-','')||'';
@@ -5078,32 +5089,99 @@ function openSummarySheet(){
   });
   document.getElementById('sbox').appendChild(list);
 }
-/* SANDBOX r2 — Android back button. An installed PWA has no history of its own, so the first back
-   press used to close the app. One "guard" history entry sits above the start entry; back pops it
-   and the app decides: close the open sheet → previous page → Home → (on Home) a "press back
-   again" toast without a new guard, so the second press closes the app as Android expects. */
-let backGuarded=false,backFromPop=false,backExitTimer=0;const pageStack=[];
-function backGuard(){if(backGuarded||typeof history==='undefined'||!history.pushState)return;try{history.pushState({sen:'guard'},'');backGuarded=true;}catch(e){}}
-function navTrack(from,to){if(backFromPop||from===to)return;pageStack.push(from);if(pageStack.length>30)pageStack.shift();backGuard();}
+/* SANDBOX r3 — Android back button. An installed PWA has no history of its own: Android's back key
+   walks the browser history, so the app keeps "guard" entries above its start entry and handles
+   each back press itself (close the sheet → previous page → Home → "press back again" toast, then
+   the next press leaves the app).
+   Chrome only honours history entries added during a user gesture: one added without it makes the
+   entry it was added from "skippable", and back then jumps straight out of the app (r2's bug — it
+   added its guard at boot and again inside the back handler). So guards are added only from a real
+   tap or key press (pointerup / keydown / click, which carry the gesture) and topped up to
+   BACK_DEPTH there; a back press never adds one. On the "press back again" toast the remaining
+   guards are dropped in one history.go(), so the very next press exits. */
+const BACK_DEPTH=3;
+let backDepth=0,backAct=false,backDrain=0,backFromPop=false,backLast='—';const pageStack=[];
+function backArm(){
+  if(!backAct||typeof history==='undefined'||!history.pushState)return;
+  try{while(backDepth<BACK_DEPTH){history.pushState({sen:'guard'},'');backDepth++;}}catch(e){}
+  backDiag();
+}
+function backGesture(){backAct=true;backArm();}
+function navTrack(from,to){if(backFromPop||from===to)return;pageStack.push(from);if(pageStack.length>30)pageStack.shift();}
 function senToast(msg){
   let t=document.getElementById('sen-toast');
   if(!t){t=document.createElement('div');t.id='sen-toast';t.className='sen-toast';t.setAttribute('role','status');document.body.appendChild(t);}
   t.textContent=msg;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('on'),2000);
 }
 function onBack(){
-  backGuarded=false;
+  if(backDrain){backDrain=0;backLast='dropped the spare guards';backDiag();return;}   // our own history.go()
+  backDepth=Math.max(0,backDepth-1);backAct=false;   // a new guard needs a new tap
   const go=p=>{backFromPop=true;gotoPage(p);backFromPop=false;};
-  if(document.getElementById('sheet').classList.contains('open')){closeSheet();backGuard();return;}
-  let prev=pageStack.pop();while(prev&&prev===curPage())prev=pageStack.pop();
-  if(prev){go(prev);backGuard();return;}
-  if(curPage()!=='home'){go('home');backGuard();return;}
-  senToast('Press back again to close');   // no new guard: the next back press leaves the app
-  clearTimeout(backExitTimer);backExitTimer=setTimeout(backGuard,2000);  // not pressed again → stay guarded
+  if(document.getElementById('sheet').classList.contains('open')){closeSheet();backLast='closed a sheet';}
+  else{
+    let prev=pageStack.pop();while(prev&&prev===curPage())prev=pageStack.pop();
+    if(prev){go(prev);backLast='back to '+prev;}
+    else if(curPage()!=='home'){go('home');backLast='back to home';}
+    else{
+      senToast('Press back again to close');backLast='toast shown';
+      if(backDepth>0){backDrain=backDepth;backDepth=0;try{history.go(-backDrain);}catch(e){backDrain=0;}}
+    }
+  }
+  backDiag();
+}
+function backDiag(){
+  const e=document.getElementById('back-diag');if(!e)return;
+  const ua=typeof navigator!=='undefined'&&navigator.userActivation;
+  e.textContent='Back button: '+backDepth+' guard'+(backDepth===1?'':'s')+' · history '+(typeof history!=='undefined'?history.length:'—')+
+    ' · gesture '+(ua?(ua.isActive?'active':ua.hasBeenActive?'had one':'none'):'n/a')+' · last: '+backLast;
 }
 function backInit(){
   if(typeof history==='undefined'||!history.replaceState)return;
   try{history.replaceState({sen:'start'},'');}catch(e){}
-  window.addEventListener('popstate',onBack);backGuard();
+  window.addEventListener('popstate',onBack);
+  ['pointerup','keydown','click'].forEach(t=>document.addEventListener(t,backGesture,true));
+  backDiag();
+}
+/* SANDBOX r3 — divider between the two panes (inner screen). Drag sets the right pane's share of the
+   screen (30–70 %), live; double-tap resets to the page's default width. One value for every page,
+   stored as a share so it survives rotation. Positioned from the rail's real left edge. */
+const DIV_MIN=0.3,DIV_MAX=0.7;
+function divApply(){
+  const r=document.documentElement,f=APP.railW;
+  if(f>=DIV_MIN&&f<=DIV_MAX){r.style.setProperty('--rail-w',(f*100).toFixed(2)+'vw');r.classList.add('split');}
+  else{r.style.removeProperty('--rail-w');r.classList.remove('split');}
+  divPos();
+}
+function divPos(){
+  const d=document.getElementById('pane-div'),rail=document.getElementById('sol-rail');if(!d||!rail)return;
+  const x=rail.getBoundingClientRect().left;d.style.left=x>0?x+'px':'';d.style.right='';
+}
+function divInit(){
+  const d=document.getElementById('pane-div');if(!d||d._g)return;d._g=true;
+  let id=null,lastUp=0;
+  d.addEventListener('contextmenu',e=>e.preventDefault());
+  d.addEventListener('pointerdown',e=>{if(e.button>0)return;id=e.pointerId;try{d.setPointerCapture(id);}catch(err){}d.classList.add('drag');e.preventDefault();});
+  d.addEventListener('pointermove',e=>{
+    if(e.pointerId!==id)return;e.preventDefault();
+    const W=window.innerWidth;APP.railW=Math.min(DIV_MAX,Math.max(DIV_MIN,(W-e.clientX)/W));divApply();d._moved=true;
+  });
+  const up=e=>{
+    if(e.pointerId!==id)return;id=null;d.classList.remove('drag');
+    const now=Date.now();
+    if(!d._moved&&now-lastUp<350){delete APP.railW;divApply();lastUp=0;}else lastUp=d._moved?0:now;
+    d._moved=false;saveDBSoon();renderQuick();
+  };
+  d.addEventListener('pointerup',up);d.addEventListener('pointercancel',up);
+  window.addEventListener('resize',()=>divPos());
+  divApply();
+}
+/* SANDBOX r3 — pull-to-refresh reloads the page and drops every Bluetooth link: blocked while any
+   device is connected (overscroll-behavior), allowed again when none is. Settings has "Reload app". */
+const anyDevice=()=>calOn().length+rfOn().length+lrOn().length>0;
+function ptrSync(){document.documentElement.classList.toggle('no-ptr',anyDevice());}
+function reloadApp(){
+  if(anyDevice()&&!confirm('Reloading disconnects every connected device (Calypso, rangefinder, LabRadar). Reload anyway?'))return;
+  location.reload();
 }
 // SANDBOX r2 — keep sheets above Android's on-screen keyboard: --kb = the part of the window it covers
 function kbInit(){
@@ -5132,6 +5210,7 @@ function devState(k){
   return{st:d.paused?'man':'live',val:d.paused?'MAN':d.last?ut('vel',d.last.v):'ready',count:''};
 }
 function devSync(){
+  ptrSync();   // SANDBOX r3
   ['wx','rf','ch'].forEach(k=>{
     const b=document.getElementById('dev-'+k);if(!b)return;const s0=devState(k);
     b.classList.toggle('live',s0.st==='live');b.classList.toggle('man',s0.st==='man');
@@ -5228,7 +5307,7 @@ function fieldInit(){
   const b=document.getElementById('fd-btn');
   if(b&&!b._g){b._g=true;senGesture(b,{tap:()=>pickSheet('dist'),hold:fdHold,drag:fdDrag,end:fdEnd});}
   hdrPage(curPage());fieldSync();
-  if(!fieldInit._done){fieldInit._done=true;backInit();kbInit();devInit();}   // SANDBOX r2
+  if(!fieldInit._done){fieldInit._done=true;backInit();kbInit();devInit();divInit();}   // SANDBOX r2 + r3
 }
 
 /* ── benchrest modules ── */
@@ -5614,8 +5693,9 @@ function applyPane(p){
   if(show)show.style.display=m==='none'?'':'none';
   renderRailHead();
   if(m==='rail')renderQuick();
+  if(typeof divPos==='function')divPos();   // SANDBOX r3: the divider follows the pane's edge
 }
-function setPaneMode(p,m){if(!paneModes(p).includes(m))return;APP.panes={...(APP.panes&&typeof APP.panes==='object'?APP.panes:{}),[p]:m};saveDB();applyPane(p);}
+function setPaneMode(p,m){if(!paneModes(p).includes(m))return;APP.panes={...(APP.panes&&typeof APP.panes==='object'?APP.panes:{}),[p]:m};saveDB();applyPane(p);divPos();}
 const screenInfo=()=>`Screen ${window.innerWidth} × ${window.innerHeight} CSS px · ${isCoarse()?'touch':'mouse'} · layout: ${({phone:'phone (single column)',inner:'fold inner screen (two panes, per page)',wide:twoPane?'wide (two panes, per page)':'wide (single column)'})[layout]}`;
 function applyLayout(){
   const mode=layoutMode(window.innerWidth,window.innerHeight,isCoarse()),two=mode==='inner'||(mode==='wide'&&window.innerHeight>=560);
@@ -5624,7 +5704,7 @@ function applyLayout(){
   layout=mode;twoPane=two;
   document.documentElement.classList.toggle('fold',two);
   applyPane(curPage());
-  info();renderQuick();
+  info();renderQuick();divPos();
 }
 const homeVisible=()=>paneShown==='rail'||document.getElementById('page-home').classList.contains('active');
 function renderRailHead(){

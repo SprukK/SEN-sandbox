@@ -5,6 +5,24 @@ Versions: `V{Main base}-r{n}`. Deploy set per release: `RTI-SEN-Ballistic-Calcul
 
 ---
 
+## V2.10.0-r3 — Back button that works on Android; draggable pane divider; no pull-to-refresh with devices connected
+
+**Owner feedback on r2 (2026-11-03).** On the Honor the back button never showed the "press back again" toast; the inner-screen divider should be draggable; pull-to-refresh reloads the app and drops every Bluetooth link.
+
+**Cause (back).** Chrome's history-manipulation intervention: an entry added without a user gesture makes the entry it was added from "skippable", and back then jumps straight past it — out of the app. r2 added its guard at boot and again inside the back handler, both without a gesture. Desktop Chromium in the tests did not show it.
+
+**Change.**
+- **Back button.** Guards are added only from a real gesture (`pointerup`, `keydown`, `click` capture listeners — where Chrome grants the gesture) and topped up to three; a back press never adds one. Back: close the sheet → previous page → Home → "Press back again to close". If guards are left at the toast they are dropped with one `history.go(−n)` (its popstate ignored), so the next press exits. No timers.
+- **Diagnostic** in Settings (temporary): "Back button: guards · history length · gesture · last action" — a screenshot shows what happened on the device.
+- **Pane divider** (inner screen, any two-pane page): a handle on the pane edge; drag left / right resizes both panes live (right pane 30–70 % of the screen), double-tap resets to the page's default width. One value for all pages, stored as a share of the width (survives rotation). The reticle grows with its pane.
+- **Pull-to-refresh** is blocked (`overscroll-behavior-y: contain`) while any Calypso, rangefinder or LabRadar is connected; allowed again when none is. **Settings → Reload app** reloads on purpose, asking first when devices are connected.
+
+**Files.** `index.html`, `RTI-SEN-Ballistic-Calculator-V2.10.0-r3-redesign.html` (identical), `sw.js` (CACHE `sen-sandbox-v2.10.0-r3`), `tests/devicetest.js` (41: back guards only from a gesture, top-up, drain, pull-to-refresh), `tests/fieldtest.js` (43: divider drag, clamp, restart, double-tap reset). Main code touched: `applyPane` / `applyLayout` / `setPaneMode` call `divPos()`; `openSheet` arms guards.
+
+**Verify.** All 31 Main suites + `fieldtest.js` 43/43 + `devicetest.js` 41/41 green; `runtests.js` unchanged 143/143. Chromium 780 × 720 with CDP touch: divider drag 452 → 392 px and double-tap back to 452, no sideways scroll; tap → sheet → real `history.back()` closes it → back on Home shows the toast and drops the spare guards; no errors. **On the Honor (owner):** back walks sheets / pages, toast on Home, second press closes; divider with the thumb; pull-down does nothing with a Calypso connected.
+
+---
+
 ## V2.10.0-r2 — Device row; Field is the default; Android back button; r1 fixes
 
 **Owner feedback on r1 (2026-11-03).** Field should be the default; the distance number sat low in its box; the on-screen keyboard covered the Set / Cancel buttons of the distance sheet; Android's back button closed the app.

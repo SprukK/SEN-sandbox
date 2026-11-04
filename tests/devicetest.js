@@ -112,15 +112,36 @@ chk('hold → popup with the string (MV · ES · SD) and "Use MV → session"',h
 [...w.document.querySelectorAll('#sbox button')].find(b=>b.textContent==='Use MV → session').click();await wait(20);
 chk('…MV reaches the session only by that tap',Math.abs(w.eval('S.mv')-281.67)<0.05&&J('S.src.mv')==='chrono'&&!sheetOpen(),w.eval('S.mv'));
 
-// 6. Android back button
+// 6. Android back button (r3): guards only from a real gesture; a back press never adds one
 const back=async()=>{w.dispatchEvent(new w.PopStateEvent('popstate',{state:null}));await wait(20);};
-w.eval(`gotoPage('home');openSummarySheet()`);await back();
-chk('back closes an open sheet and stays on Home',!sheetOpen()&&w.eval('curPage()')==='home');
+const gesture=async()=>{w.document.body.dispatchEvent(new w.MouseEvent('pointerup',{bubbles:true}));await wait(10);};
+w.eval(`window._push=0;window._go=[];history.pushState=function(){_push++;};history.go=function(n){_go.push(n);};backDepth=0;backAct=false;pageStack.length=0;gotoPage('home');closeSheet();`);
+w.eval(`openSummarySheet();gotoPage('traj');gotoPage('home');closeSheet();pageStack.length=0;`);
+chk('no guard without a gesture (sheet opened, pages changed from code — the r2 bug)',w.eval('_push')===0&&w.eval('backDepth')===0);
+await gesture();
+chk('a tap arms three guards',w.eval('_push')===3&&w.eval('backDepth')===3);
+w.eval(`openSummarySheet()`);await back();
+chk('back closes an open sheet, adds no guard',!sheetOpen()&&w.eval('curPage()')==='home'&&w.eval('_push')===3&&w.eval('backDepth')===2);
+await gesture();chk('the next tap tops the guards up again',w.eval('_push')===4&&w.eval('backDepth')===3);
 w.eval(`gotoPage('traj');gotoPage('settings')`);await back();
-chk('back returns to the previous page (Settings → Trajectory → Home)',w.eval('curPage()')==='traj'&&$('hdr-page').textContent==='Trajectory');
+chk('back returns to the previous page (Settings → Trajectory)',w.eval('curPage()')==='traj'&&$('hdr-page').textContent==='Trajectory');
 await back();chk('…then Home',w.eval('curPage()')==='home');
 await back();
-chk('back on Home with nothing open: "Press back again to close", no new guard',/Press back again/.test($('sen-toast').textContent)&&$('sen-toast').classList.contains('on')&&w.eval('backGuarded')===false);
+chk('back on Home: "Press back again to close", all guards used, nothing pushed',/Press back again/.test($('sen-toast').textContent)&&$('sen-toast').classList.contains('on')&&w.eval('backDepth')===0&&w.eval('_push')===4&&w.eval('_go.length')===0);
+await gesture();await back();
+chk('toast with spare guards left: they are dropped in one history.go(−2), so the next press exits',w.eval('JSON.stringify(_go)')==='[-2]'&&w.eval('backDepth')===0);
+await back();
+chk('…the popstate of that history.go is ignored (no toast loop, no page change)',w.eval('backDrain')===0&&w.eval('curPage()')==='home'&&w.eval('_go.length')===1);
+w.eval(`gotoPage('settings')`);
+chk('Settings shows the back-button diagnostic line',/^Back button: \d guards? · history \d+ · gesture .* · last: /.test($('back-diag').textContent),$('back-diag').textContent);
+w.eval(`gotoPage('home')`);
+
+// 6b. Pull-to-refresh blocked only while a device is connected
+w.eval('devSync()');
+chk('devices connected → pull-to-refresh blocked (no-ptr)',w.document.documentElement.classList.contains('no-ptr')&&/overscroll-behavior-y:contain/.test(fs.readFileSync(FILE,'utf8')));
+w.eval(`window._saved=[CALS.slice(),RFS.slice(),LR];CALS.length=0;RFS.length=0;LR=null;devSync()`);
+chk('no device → pull-to-refresh allowed again',!w.document.documentElement.classList.contains('no-ptr'));
+w.eval(`CALS.push(..._saved[0]);RFS.push(..._saved[1]);LR=_saved[2];calSyncPrimary();devSync()`);   // later checks use the units
 
 // 7. Text only, no errors
 w.eval(`CALS[0].link.name='<img src=x id=pwn>';calRender();devSheet('wx')`);

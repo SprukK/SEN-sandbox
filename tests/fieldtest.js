@@ -146,6 +146,27 @@ chk('angle sheet sets Home angle 20°, answer re-solved',$(w,'home-angle').value
  const css=fs.readFileSync(FILE,'utf8');
  chk('…the sheet box sits on --kb and its height leaves room for it',/\.sbox\{bottom:var\(--kb,0px\);max-height:calc\(84vh - var\(--kb,0px\)\)\}/.test(css));}
 
+// 7c. Divider between the panes (inner screen): drag 30–70 %, double-tap reset, remembered
+{const d2=new JSDOM(fs.readFileSync(FILE,'utf8'),{runScripts:'dangerously',pretendToBeVisual:true,url:'https://x.test/',
+  beforeParse(v){Object.defineProperty(v,'innerWidth',{configurable:true,value:780});Object.defineProperty(v,'innerHeight',{configurable:true,value:720});v.alert=()=>{};v.scrollTo=()=>{};
+    v.HTMLCanvasElement.prototype.getContext=()=>new Proxy({},{get:(t,k)=>k==='measureText'?()=>({width:10}):()=>{}});}});
+ const v=d2.window;await wait(700);const root=v.document.documentElement,dv=v.document.getElementById('pane-div');
+ const p=(type,x)=>{const e=new v.MouseEvent(type,{bubbles:true,cancelable:true,clientX:x,clientY:300,button:0});Object.defineProperty(e,'pointerId',{value:7});dv.dispatchEvent(e);};
+ chk('inner screen: two panes and a divider, default widths until moved',root.classList.contains('fold')&&!!dv&&!root.classList.contains('split'));
+ p('pointerdown',460);p('pointermove',390);
+ chk('drag to the middle → right pane 50 % live, while dragging',v.eval('APP.railW')===0.5&&root.classList.contains('split')&&root.style.getPropertyValue('--rail-w')==='50.00vw'&&dv.classList.contains('drag'));
+ p('pointermove',740);const lo=v.eval('APP.railW');p('pointermove',20);const hi=v.eval('APP.railW');p('pointerup',20);
+ chk('clamped to 30 % … 70 %',lo===0.3&&hi===0.7&&!dv.classList.contains('drag'),lo+' / '+hi);
+ v.eval('saveDB()');await wait(50);
+ const d3=new JSDOM(fs.readFileSync(FILE,'utf8'),{runScripts:'dangerously',pretendToBeVisual:true,url:'https://x.test/',
+   beforeParse(x){Object.defineProperty(x,'innerWidth',{configurable:true,value:780});Object.defineProperty(x,'innerHeight',{configurable:true,value:720});x.alert=()=>{};x.scrollTo=()=>{};
+     x.localStorage.setItem(SK,v.localStorage.getItem(SK));x.HTMLCanvasElement.prototype.getContext=()=>new Proxy({},{get:(t,k)=>k==='measureText'?()=>({width:10}):()=>{}});}});
+ await wait(700);
+ chk('width remembered after a restart',d3.window.document.documentElement.style.getPropertyValue('--rail-w')==='70.00vw');
+ p('pointerdown',200);p('pointerup',200);await wait(60);p('pointerdown',200);p('pointerup',200);
+ chk('double-tap resets to the default split',v.eval('APP.railW')===undefined&&!root.classList.contains('split')&&root.style.getPropertyValue('--rail-w')==='');
+ chk('…the CSS uses --rail-w for both the rail and the left pane',/html\.fold\.split body\{padding-right:calc\(var\(--rail-w\) \+ 18px\)\}/.test(fs.readFileSync(FILE,'utf8')));}
+
 // 8. Header, layout sheet, text only, no errors
 w.eval(`gotoPage('traj')`);const h1=txt(w,'hdr-page');w.eval(`gotoPage('settings')`);const h2=txt(w,'hdr-page');w.eval(`gotoPage('home')`);
 chk('header shows the page name (Trajectory, Settings, Home)',h1==='Trajectory'&&h2==='Settings'&&txt(w,'hdr-page')==='Home');
