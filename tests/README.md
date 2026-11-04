@@ -155,6 +155,9 @@ npm install jsdom fake-indexeddb --prefix /tmp/jsdom
 
 # SEN-sandbox r8: choosable bottom bar, drag to reorder Home modules, inner-screen module order
 (cd tests && NODE_PATH=/tmp/jsdom/node_modules node customtest.js ../index.html)
+
+# SEN-sandbox r10: Truing sub-tabs, empty-pane hint, wide-table hint, profile ⋯ menu, flatter panels
+(cd tests && NODE_PATH=/tmp/jsdom/node_modules node polishtest.js ../index.html)
 ```
 
 ## Provenance

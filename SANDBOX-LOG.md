@@ -5,6 +5,23 @@ Versions: `V{Main base}-r{n}`. Deploy set per release: `RTI-SEN-Ballistic-Calcul
 
 ---
 
+## V2.10.0-r10 — Polish: flatter panels, profile ⋯ menu, wide-table hint, Truing sub-tabs, empty-pane hint
+
+**Problem.** The open polish items: card-inside-card look; five buttons on every profile row; wide tables (drop table, Holds, twist recommender) cut at the edge with no sign they scroll; Truing stacked four tools into one ~2,100 px column with only one tool's results beside it on the inner screen; Bench with no design left the right pane blank.
+
+**Change.**
+- **Flatter look:** panels are sections — a rule above, no box. Results cards, Field cards, the shot strip, tables and callouts stay cards.
+- **Profile rows:** ☆ stays; tapping the name opens Edit; **⋯** opens a sheet with Edit · Clone · Share · Delete (the original buttons stay hidden and do the work, so every existing path is unchanged).
+- **Wide tables:** a table wider than its box fades at the right edge and shows "Swipe the table sideways →" (inside the box, sticky at its left); both go once it is scrolled to the end or the table fits.
+- **Truing sub-tabs:** **Velocity · Impacts · BC / SD · MV–temp**, one tool at a time on both screens, remembered. On the inner screen each tool's results sit in the right pane (impacts result, MV–temp table and fit added to the pane).
+- **Empty right pane** says what will appear there (Bench without a design, a Truing tool not run yet, Stability without a session).
+
+**Files.** `index.html`, `RTI-SEN-Ballistic-Calculator-V2.10.0-r10-redesign.html` (identical), `sw.js` (CACHE `sen-sandbox-v2.10.0-r10`), `tests/polishtest.js` (new, 23), `tests/layouttest.js` (Truing pane now lists every tool's results — intended UI change), `tests/README.md`. Main code touched: `PANE_PAGE.truing`; Truing page enter opens the remembered tool.
+
+**Verify.** All 31 Main suites + 8 sandbox suites green (39 runs); `runtests.js` 143/143. Size sweep: all text ≥ 12 px, controls ≥ 48 px except the source chips, no sideways scroll, no errors at 412 / 780 px.
+
+---
+
 ## V2.10.0-r9 — Animated module drag
 
 **Owner request (2026-11-04).** r8's drag reordered the list in jumps; make it animated.

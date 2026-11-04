@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0a0b0e">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
-<title>SEN Sandbox V2.10.0-r9</title>
+<title>SEN Sandbox V2.10.0-r10</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Archivo:wght@500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
@@ -183,6 +183,25 @@ body:has(#page-home.active):has(#home-summary:not(.mod-off)) #sesbar{display:non
 .ses-txt span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ses-txt .ses-2{font-size:13px;color:var(--text3)}
 .dup-hide{display:none!important}
+/* SANDBOX r10 — one surface level: panels are sections (a rule above, no box); results, Field cards, tables and callouts stay cards */
+.panel{background:transparent;border:none;border-top:1px solid var(--border2);border-radius:0;padding:16px 2px 12px;margin-bottom:0}
+.panel h2{background-image:none;padding-bottom:0}
+.panel .ph{margin-bottom:10px}
+.page>.outcard+.panel,.page>.sstrip+.panel,.page>.advtabs+.panel{border-top:none}
+.sbox .panel,#lay-edit.panel{border-top:none}
+/* truing tools */
+.trtabs{grid-template-columns:repeat(4,1fr)}
+.trtabs button{white-space:nowrap;padding:8px 4px}
+html[data-tt="vel"] [data-tt]:not([data-tt="vel"]),html[data-tt="imp"] [data-tt]:not([data-tt="imp"]),
+html[data-tt="bc"] [data-tt]:not([data-tt="bc"]),html[data-tt="mvt"] [data-tt]:not([data-tt="mvt"]){display:none!important}
+.pane-empty{margin:24px 8px;padding:18px;border:1px dashed var(--border2);border-radius:12px;color:var(--text3);font-size:14px;line-height:1.5;text-align:center}
+/* wide tables */
+.tablebox.xs:not(.xs-end),.xs-box.xs:not(.xs-end){-webkit-mask-image:linear-gradient(to right,#000 82%,transparent);mask-image:linear-gradient(to right,#000 82%,transparent)}
+.xs-hint{position:sticky;left:0;width:max-content;font-size:12px;color:var(--accent);margin:0 0 6px}
+/* profile rows */
+.pitem-open{cursor:pointer;flex:1 1 140px;min-width:0}
+.pmenu{font-size:20px;line-height:1}
+.flist .danger-row{color:var(--red)}
 /* SANDBOX r8 — layout editor grip, screen switch; bottom-bar picker */
 .lay-mod{display:flex;align-items:center;gap:6px}
 .lay-mod .lay-modname{flex:1;min-width:0;font-family:var(--sans);font-size:14px;line-height:1.3}
@@ -482,7 +501,7 @@ html.help-all .help-btn{display:none}
   <div class="hpage" id="hdr-page">Home</div>
 </div>
 
-<div id="pane-div" role="separator" aria-orientation="vertical" aria-label="Drag to resize the panes, double-tap to reset"><span></span></div><aside id="sol-rail" aria-label="Second pane"><div class="pane-sw" id="pane-sw"></div><div class="rail-head" id="rail-head">—</div></aside><button class="btn-xs" id="pane-show" style="display:none" onclick="setPaneMode(curPage(),'rail')">◧ Solution</button>
+<div id="pane-div" role="separator" aria-orientation="vertical" aria-label="Drag to resize the panes, double-tap to reset"><span></span></div><aside id="sol-rail" aria-label="Second pane"><div class="pane-sw" id="pane-sw"></div><div class="rail-head" id="rail-head">—</div><div class="pane-empty" hidden></div></aside><button class="btn-xs" id="pane-show" style="display:none" onclick="setPaneMode(curPage(),'rail')">◧ Solution</button>
 <div class="flag warn" id="store-warn" role="alert" style="display:none;margin:8px 12px 0"></div>
 <div class="flag warn" id="fx-alarm" role="alert" style="display:none;margin:8px 12px 0;color:var(--red);border-color:var(--red)"></div>
 <div class="flag warn" id="ios-hint" style="display:none;margin:8px 12px 0">On iPhone, add SEN to your Home Screen (Share → Add to Home Screen). Safari deletes the data of websites that aren't installed after 7 days without use. <button class="btn-xs" onclick="dismissIosHint()">Got it</button></div>
@@ -725,7 +744,8 @@ html.help-all .help-btn{display:none}
 
 <!-- ═══════════ BC TRUING (A6) ═══════════ -->
 <div class="page" id="page-truing">
-  <div class="panel">
+  <div class="subnav advtabs trtabs" role="tablist" aria-label="BC and truing tools"><button type="button" role="tab" data-trt="vel" onclick="setTruTab('vel')">Velocity</button><button type="button" role="tab" data-trt="imp" onclick="setTruTab('imp')">Impacts</button><button type="button" role="tab" data-trt="bc" onclick="setTruTab('bc')">BC / SD</button><button type="button" role="tab" data-trt="mvt" onclick="setTruTab('mvt')">MV–temp</button></div>
+  <div class="panel" data-tt="vel">
     <div class="ph"><h2>BC Truing</h2><span class="psub">solve real BC from measured downrange velocity</span></div>
     <div class="fgrid">
       <div class="fld"><label>Projectile</label><select id="tu-proj" onchange="tuLoadProj()"></select></div>
@@ -741,27 +761,27 @@ html.help-all .help-btn{display:none}
     <div id="tu-points" style="margin-top:10px"></div>
     <div class="btnrow"><button class="btn" onclick="tuAddPoint()">+ Add measured point</button><button class="btn primary" onclick="tuSolve()">True BC</button></div>
   </div>
-  <div class="panel" id="tu-result" style="display:none">
+  <div class="panel" id="tu-result" data-tt="vel" style="display:none">
     <div class="ph"><h2>Result</h2><span class="psub" id="tu-result-sub"></span></div>
     <div id="tu-result-body"></div>
     <div class="btnrow"><button class="btn primary" onclick="tuApply()">Apply to projectile profile</button></div>
     <div class="note" id="tu-apply-note"></div>
   </div>
-  <div class="panel" id="td-panel">
+  <div class="panel" id="td-panel" data-tt="imp">
     <div class="ph"><h2>True BC from impacts</h2><span class="psub">CALC-04 · the dials that actually hit, one or more distances</span></div>
     <div class="note" id="td-ctx" style="margin-top:0"></div>
     <div class="fld" style="max-width:220px"><label>Dial unit</label><select id="td-unit"><option value="click">clicks</option><option value="mrad">mrad</option><option value="moa">MOA</option></select></div>
     <div id="td-rows" style="margin-top:8px"></div>
     <div class="note hlp">Per distance: the dial (up from the turret zero, as the turret reads) that centred a 5-shot group, and where that group's centre landed (+ above the aim, − below). Use distances well beyond the zero — the zero distance itself says nothing about BC. More distances → one best-fit BC with a tighter range. MV (from the chrono), zero and air come from the current session and must be right.</div>
     <div class="btnrow"><button class="btn" onclick="tdAddRow()">+ Add distance</button><button class="btn primary" onclick="tdSolve()">True BC from impacts</button></div>
-    <div id="td-result"></div>
+    <div id="td-result" data-tt="imp"></div>
   </div>
-  <div class="outcard" id="bc-out">
+  <div class="outcard" id="bc-out" data-tt="bc">
     <div class="ot"><span>BC / SD · <span id="bc-name">—</span></span><span id="bc-type-lbl"></span></div>
     <div class="scs" id="bc-outs"><div class="sc"><div class="sv" style="font-size:14px;color:var(--text3)">Select a projectile or enter geometry</div></div></div>
     <div id="bc-flags"></div>
   </div>
-  <div class="panel">
+  <div class="panel" data-tt="bc">
     <h2>Geometry <button class="srcbtn" id="src-bcproj" onclick="bcFromProj()" style="float:right">Get from active projectile</button></h2>
     <div class="projdia" data-dia="diam,oal"></div>
     <div class="fgrid3">
@@ -774,8 +794,8 @@ html.help-all .help-btn{display:none}
     </div>
     <div class="note hlp">§9H: SD = mass_gr / (7000 · d_in²), no π/4 · BC G7 [kg/m²] = lb/in² × 703.07 · BC G1 ≈ BC G7 / 0.509 (Litz estimate)</div>
   </div>
-  <div class="tablebox" id="bc-benchbox"><div class="ct">vs Altaros Queen .25 benchmark (BC G7 0.128 lb/in² · 90.0 kg/m² · SD 0.137)</div><table><thead><tr><th>Metric</th><th>This</th><th>Queen</th><th>Δ %</th></tr></thead><tbody id="bc-bench"></tbody></table></div>
-  <div class="panel" id="mvt-panel">
+  <div class="tablebox" id="bc-benchbox" data-tt="bc"><div class="ct">vs Altaros Queen .25 benchmark (BC G7 0.128 lb/in² · 90.0 kg/m² · SD 0.137)</div><table><thead><tr><th>Metric</th><th>This</th><th>Queen</th><th>Δ %</th></tr></thead><tbody id="bc-bench"></tbody></table></div>
+  <div class="panel" id="mvt-panel" data-tt="mvt">
     <div class="ph"><h2>MV vs temperature · E2</h2><span class="psub">per-rifle regulator temperature model</span></div>
     <div class="note" id="mvt-rifle-note"></div>
     <div class="fgrid3">
@@ -783,8 +803,8 @@ html.help-all .help-btn{display:none}
       <div class="fld"><label>Measured MV m/s</label><input type="number" id="mvt-v" step="0.1"></div>
       <div class="fld"><label>&nbsp;</label><div class="seg"><button onclick="mvtAdd()">Add observation</button></div></div>
     </div>
-    <div class="tablebox" style="margin-top:10px"><table><thead><tr><th>Temp <span data-ul="temp">°C</span></th><th>MV <span data-ul="vel">m/s</span></th><th></th></tr></thead><tbody id="mvt-tbody"></tbody></table></div>
-    <div class="note" id="mvt-fit"></div>
+    <div class="tablebox" id="mvt-tblbox" data-tt="mvt" style="margin-top:10px"><table><thead><tr><th>Temp <span data-ul="temp">°C</span></th><th>MV <span data-ul="vel">m/s</span></th><th></th></tr></thead><tbody id="mvt-tbody"></tbody></table></div>
+    <div class="note" id="mvt-fit" data-tt="mvt"></div>
     <div class="btnrow"><button class="btn primary" id="mvt-apply" onclick="mvtApply()">Set session MV from model</button></div>
   </div>
 </div>
@@ -1150,7 +1170,7 @@ html.help-all .help-btn{display:none}
 <div class="page" id="page-settings">
   <div id="settings-body"></div>
   <div class="btnrow"><button class="btn" id="reload-btn" onclick="reloadApp()">Reload app</button></div>
-  <div class="note">SEN Sandbox V2.10.0-r9 · UI fork of SEN Ballistics V2.10.0 (physics unchanged) · RTI Mora Sniper · RK4 G7/G1 · single-file PWA · github.com/SprukK/SEN-sandbox</div>
+  <div class="note">SEN Sandbox V2.10.0-r10 · UI fork of SEN Ballistics V2.10.0 (physics unchanged) · RTI Mora Sniper · RK4 G7/G1 · single-file PWA · github.com/SprukK/SEN-sandbox</div>
 </div>
 
 <!-- profile modals -->
@@ -3130,7 +3150,7 @@ function gotoPage(p){
   if(p==='wind'){document.getElementById('wd-spd').value=S.wind.speed;document.getElementById('wd-dir').value=S.wind.dir;setWindMode(S.wind.source==='calypso'?'live':'manual');}
   if(p==='solver'){stripMirror();solve();}   // SANDBOX r7: distance, angle, cant and wind all from the session
   if(p==='dope'){refreshDopeSel();loadDope();}
-  if(p==='truing'){tuInit();if(getProj())bcFromProj();else calcBC();mvtRender();}
+  if(p==='truing'){setTruTab(APP.truTab,true);tuInit();if(getProj())bcFromProj();else calcBC();mvtRender();}
   if(p==='holds')renderHolds();
   if(p==='formulas')renderFormulas();
   if(p==='layouts')renderLayouts();
@@ -5534,6 +5554,76 @@ function sesSync(){
   l2.textContent=[S.mv?ut('vel',S.mv):null,tc!=null?ut('temp',tc):'no weather',ut('wind',S.wind.speed)+' @ '+Math.round(S.wind.dir)+'°'+(S.wind.source==='calypso'?' ⊙':''),ut('range',S.dist_m)].filter(Boolean).join(' · ');
   t.append(l1,l2);
 }
+
+/* ═════════ SANDBOX r10 — polish: Truing sub-tabs, empty-pane hint, wide-table hint, profile ⋯ menu ═════════ */
+const TRU_TABS=['vel','imp','bc','mvt'];
+function setTruTab(t,quiet){
+  t=TRU_TABS.includes(t)?t:'vel';
+  document.documentElement.dataset.tt=t;   // CSS shows only that tool's blocks, in the page and in the right pane
+  document.querySelectorAll('.trtabs button').forEach(b=>{const on=b.dataset.trt===t;b.classList.toggle('on',on);b.setAttribute('aria-selected',String(on));});
+  if(APP.truTab!==t){APP.truTab=t;if(!quiet)saveDBSoon();}
+  r10Sync();
+}
+const PANE_EMPTY={bench:'Create or pick a design: its drawing, mass, SD and centre of gravity appear here.',
+  'truing:vel':'Enter a measured velocity downrange and tap True BC: the trued BC appears here.',
+  'truing:imp':'Enter the dial that centred a group and tap True BC from impacts: the result appears here.',
+  'truing:mvt':'Add MV observations at two or more temperatures: the table and the fitted slope appear here.',
+  'truing:bc':'Enter the geometry: SD and BC appear here.',stab:'Choose a rifle and a projectile: Sg and the twist table appear here.'};
+// a page pane with nothing visible in it says what will appear there
+function paneEmptySync(){
+  const rail=document.getElementById('sol-rail'),box=rail&&rail.querySelector('.pane-empty');if(!box)return;
+  if(typeof paneShown==='undefined'||paneShown!=='page'){box.hidden=true;return;}
+  const shown=[...rail.children].filter(e=>!['pane-sw','rail-head'].includes(e.id)&&!e.classList.contains('pane-empty')&&e.tagName!=='SPAN')
+    .some(e=>getComputedStyle(e).display!=='none'&&e.textContent.trim()!=='');
+  const pg=curPage(),k=pg==='truing'?'truing:'+(APP.truTab||'vel'):pg;
+  box.hidden=shown;box.textContent=shown?'':(PANE_EMPTY[k]||'Results appear here.');
+}
+// a table wider than its box: fade at the right edge + "swipe" hint until it's scrolled to the end
+function tblHints(){
+  const scopes=[document.querySelector('.page.active'),document.getElementById('sol-rail')].filter(Boolean);
+  scopes.forEach(sc=>sc.querySelectorAll('.tablebox,.xs-box').forEach(b=>{
+    if(!b._xs){b._xs=true;b.addEventListener('scroll',()=>tblEdge(b),{passive:true});}
+    tblEdge(b);
+  }));
+}
+function tblEdge(b){
+  const more=b.scrollWidth>b.clientWidth+2,end=b.scrollLeft+b.clientWidth>=b.scrollWidth-2;
+  if(b.classList.contains('xs')!==more)b.classList.toggle('xs',more);
+  if(b.classList.contains('xs-end')!==(more&&end))b.classList.toggle('xs-end',more&&end);
+  // the hint lives inside the box (sticky at its left edge), so it moves with the box between the panes
+  let h=b.querySelector(':scope > .xs-hint');
+  if(more&&!h){h=document.createElement('div');h.className='xs-hint';h.textContent='Swipe the table sideways →';b.prepend(h);}
+  if(h){const hide=!more||end||b.scrollLeft>8;if(h.hidden!==hide)h.hidden=hide;}
+}
+// profile rows: ☆ stays, tap the name to edit, ⋯ for Edit / Clone / Share / Delete (the original buttons stay, hidden, and do the work)
+function profMenus(){
+  document.querySelectorAll('#page-profiles .pacts').forEach(a=>{
+    if(a._menu)return;a._menu=true;
+    const pick=sel=>a.querySelector(sel);
+    const acts=[['Edit','[data-e]'],['Clone','[data-c]'],['Share','[data-sh]'],['Delete','[data-d]']].filter(([,sel])=>pick(sel));
+    acts.forEach(([,sel])=>pick(sel).classList.add('dup-hide'));
+    const row=a.closest('.pitem'),name=row&&row.firstElementChild,nm=row?(row.querySelector('.pn')||{}).textContent||'':'';
+    if(name&&pick('[data-e]')){name.classList.add('pitem-open');name.setAttribute('role','button');name.tabIndex=0;
+      name.onclick=()=>pick('[data-e]').click();name.onkeydown=e=>{if(e.key==='Enter')pick('[data-e]').click();};}
+    const m=document.createElement('button');m.type='button';m.className='btn-xs pmenu';m.textContent='⋯';m.setAttribute('aria-label','More actions for '+nm);
+    m.onclick=()=>{
+      openSheet('');const box=document.getElementById('sbox');
+      const h=document.createElement('h3');h.textContent=nm;const list=document.createElement('div');list.className='flist';
+      acts.forEach(([label,sel])=>{const b=document.createElement('button');b.type='button';b.textContent=label;if(label==='Delete')b.className='danger-row';
+        b.onclick=()=>{closeSheet();pick(sel).click();};list.appendChild(b);});
+      box.append(h,list);
+    };
+    a.appendChild(m);
+  });
+}
+function r10Sync(){tblHints();paneEmptySync();profMenus();}
+function r10Init(){
+  if(typeof MutationObserver!=='function')return;
+  let t=0;const run=()=>{t=0;r10Sync();};
+  new MutationObserver(()=>{if(!t)t=setTimeout(run,120);}).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['style','hidden']});
+  window.addEventListener('resize',()=>{if(!t)t=setTimeout(run,120);});
+  r10Sync();
+}
 /* SANDBOX r6 — Advanced: the Trajectory and Solver pages behind one bottom tab, as two sub-tabs.
    The pages themselves are unchanged (every gotoPage('traj'/'solver') still works); the tab reopens
    the sub-tab used last and stays lit on both. */
@@ -5573,7 +5663,7 @@ function fieldInit(){
   const b=document.getElementById('fd-btn');
   if(b&&!b._g){b._g=true;senGesture(b,{tap:()=>pickSheet('dist'),hold:fdHold,drag:fdDrag,end:fdEnd});}
   hdrPage(curPage());fieldSync();
-  if(!fieldInit._done){fieldInit._done=true;backInit();kbInit();devInit();divInit();helpSync();stripInit();sesSync();renderNav();   // SANDBOX r2 + r3 + r5 + r7 + r8
+  if(!fieldInit._done){fieldInit._done=true;backInit();kbInit();devInit();divInit();helpSync();stripInit();sesSync();renderNav();setTruTab(APP.truTab,true);r10Init();   // SANDBOX r2 + r3 + r5 + r7 + r8 + r10
     Bus.on(()=>{if(curPage()==='holds')renderHolds();});}   // r7: Holds follows the session like the other pages
 }
 
@@ -6011,7 +6101,7 @@ const isCoarse=()=>window.matchMedia?matchMedia('(pointer: coarse)').matches:('o
    button at the top right); the choice is remembered per page (APP.panes). Blocks are MOVED, never copied
    (ids unchanged, every renderer keeps working), and go back to their exact place on every page change. */
 const PANE_RAIL=['home','traj','solver','wind','dope','holds'];
-const PANE_PAGE={bench:['bn-out'],stab:['st-out','st-twbox'],truing:['tu-result','bc-out','bc-benchbox']};
+const PANE_PAGE={bench:['bn-out'],stab:['st-out','st-twbox'],truing:['tu-result','td-result','bc-out','bc-benchbox','mvt-tblbox','mvt-fit']};   // r10: each truing tool's results
 const PANE_LABEL={page:'Results',rail:'Solution',none:'Hide'};
 let twoPane=false,paneShown=null;     // paneShown: 'rail' | 'page' | 'none' while two panes are on, else null
 const paneModes=p=>PANE_RAIL.includes(p)?['rail']:PANE_PAGE[p]?['page','rail']:['none','rail'];
