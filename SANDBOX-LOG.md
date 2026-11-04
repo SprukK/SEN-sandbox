@@ -5,6 +5,24 @@ Versions: `V{Main base}-r{n}`. Deploy set per release: `RTI-SEN-Ballistic-Calcul
 
 ---
 
+## V2.10.0-r11 — Colours: eight user colours, the rest derived
+
+**Owner request (2026-11-04).** Let the user change the colours. Owner rulings: eight colours (not all ~15), no Night-red / Daylight presets, the reticle follows the colours.
+
+**Change.**
+- **Settings → Colours:** Background · Panels · Text · Accent (elevation) · Windage · Warning · Danger · OK, each a native colour picker with its hex value; live preview while picking, saved on release; **Reset to default colours** (fixed, always-readable colours, so a bad pick can always be undone).
+- **Derived from the eight:** panel shades, borders, tints, highlight backgrounds, the high-contrast variant; **quiet text** is moved toward the text colour until it reads at ≥ 4.5 : 1; **text on accent buttons** picks black or white by contrast. The browser bar colour follows the background.
+- **Checks under the pickers:** text under 4.5 : 1, a signal colour (accent, windage, warning, danger, OK) under 3 : 1 — the built-in red is 3.5 — and warning / danger / accent / OK pairs that look alike are listed and their rows marked.
+- **Reticle and trajectory chart** draw in the theme's colours (glass, lines, numbers, hold dot, off-glass marker).
+- **Default unchanged:** with no custom colours nothing is applied; the stylesheet's tints now use `color-mix` of the same tokens, so they are identical by default (pixel check against r10: no pixel differs by more than 8 levels).
+- Stored as `APP.theme` (sanitised: bad hex → that colour's default), exported with the settings.
+
+**Files.** `index.html`, `RTI-SEN-Ballistic-Calculator-V2.10.0-r11-redesign.html` (identical), `sw.js` (CACHE `sen-sandbox-v2.10.0-r11`), `tests/themetest.js` (new, 24), `tests/helptest.js` (21 help notes, 5 Settings panels), `tests/README.md`. Main code touched: reticle and chart colour literals → `tc()`; `setApp('contrast')` re-applies the theme.
+
+**Verify.** All 31 Main suites + 9 sandbox suites green (40 runs); `runtests.js` 143/143; Home clicks identical with any colours. Chromium: custom theme reaches answer card, tabs, pills, flags, reticle; warnings fire on unreadable text and on look-alike warning / danger.
+
+---
+
 ## V2.10.0-r10 — Polish: flatter panels, profile ⋯ menu, wide-table hint, Truing sub-tabs, empty-pane hint
 
 **Problem.** The open polish items: card-inside-card look; five buttons on every profile row; wide tables (drop table, Holds, twist recommender) cut at the edge with no sign they scroll; Truing stacked four tools into one ~2,100 px column with only one tool's results beside it on the inner screen; Bench with no design left the right pane blank.

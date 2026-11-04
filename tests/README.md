@@ -158,6 +158,9 @@ npm install jsdom fake-indexeddb --prefix /tmp/jsdom
 
 # SEN-sandbox r10: Truing sub-tabs, empty-pane hint, wide-table hint, profile ⋯ menu, flatter panels
 (cd tests && NODE_PATH=/tmp/jsdom/node_modules node polishtest.js ../index.html)
+
+# SEN-sandbox r11: colours (eight user colours, derived tokens, checks, themed reticle and chart)
+(cd tests && NODE_PATH=/tmp/jsdom/node_modules node themetest.js ../index.html)
 ```
 
 ## Provenance
